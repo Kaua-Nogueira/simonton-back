@@ -8,15 +8,15 @@ API REST para gerenciamento de transações financeiras com suporte a importaç�
 2. Configure o arquivo `.env` com suas credenciais de banco de dados
 3. Execute as migrations:
 
-```bash
+\`\`\`bash
 php artisan migrate
-```
+\`\`\`
 
 4. (Opcional) Execute os seeders para dados de exemplo:
 
-```bash
+\`\`\`bash
 php artisan db:seed
-```
+\`\`\`
 
 ## Endpoints da API
 
@@ -79,8 +79,8 @@ php artisan db:seed
 
 Para a importação OFX completa, considere instalar a biblioteca `asgrim/ofxparser`:
 
-```bash
+\`\`\`bash
 composer require asgrim/ofxparser
-```
+\`\`\`
 
 A implementação atual é simplificada para demonstração.
