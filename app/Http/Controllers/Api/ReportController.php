@@ -20,6 +20,7 @@ class ReportController extends Controller
             'expense' => $this->expenseReport($startDate, $endDate),
             'category' => $this->categoryReport($startDate, $endDate),
             'member' => $this->memberReport($startDate, $endDate),
+            'transfer' => $this->transferReport($startDate, $endDate),
             default => response()->json(['message' => 'Invalid report type'], 400),
         };
     }
@@ -85,6 +86,22 @@ class ReportController extends Controller
 
         return response()->json([
             'type' => 'member',
+            'data' => $data,
+        ]);
+    }
+
+    private function transferReport($startDate, $endDate): JsonResponse
+    {
+        // Fetch members transferred/dismissed within the range
+        // dismissal_type = 'Transferência'
+        $data = \App\Models\Member::where('dismissal_type', 'Transferência')
+            ->whereBetween('dismissal_date', [$startDate, $endDate])
+            ->orderBy('dismissal_date', 'desc')
+            ->get();
+
+        return response()->json([
+            'type' => 'transfer',
+            'count' => $data->count(),
             'data' => $data,
         ]);
     }

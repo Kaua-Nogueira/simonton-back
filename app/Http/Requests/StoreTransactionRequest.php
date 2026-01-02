@@ -23,6 +23,7 @@ class StoreTransactionRequest extends FormRequest
             'member_id' => 'nullable|exists:members,id',
             'category_id' => 'nullable|exists:categories,id',
             'cost_center_id' => 'nullable|exists:cost_centers,id',
+            'status' => 'nullable|in:pending,confirmed,suggested',
         ];
     }
 

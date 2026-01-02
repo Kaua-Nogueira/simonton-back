@@ -25,6 +25,7 @@ class MemberResource extends JsonResource
             'totalContributions' => $this->when(isset($this->total_contributions), (float) $this->total_contributions),
             'createdAt' => $this->created_at->toISOString(),
             'updatedAt' => $this->updated_at->toISOString(),
+            'roles' => $this->whenLoaded('roles'),
         ];
     }
 }

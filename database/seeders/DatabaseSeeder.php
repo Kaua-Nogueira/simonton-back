@@ -5,12 +5,21 @@ namespace Database\Seeders;
 use App\Models\Category;
 use App\Models\CostCenter;
 use App\Models\Member;
+use App\Models\User;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\Hash;
 
 class DatabaseSeeder extends Seeder
 {
     public function run(): void
     {
+        // Default User
+        User::create([
+            'name' => 'Admin',
+            'email' => 'admin@admin.com',
+            'password' => Hash::make('password'),
+        ]);
+
         // Seed Categories
         $categories = [
             ['name' => 'Salário', 'type' => 'income'],
@@ -48,5 +57,30 @@ class DatabaseSeeder extends Seeder
             'cpf' => '123.456.789-00',
             'status' => 'active',
         ]);
+
+        // Seed Roles (Ofícios/Funções)
+        $roles = [
+            // Eclesiásticos (Ofícios)
+            ['name' => 'Pastor', 'type' => 'ecclesiastical', 'description' => 'Pastor Titular'],
+            ['name' => 'Presbítero', 'type' => 'ecclesiastical', 'description' => 'Presbítero'],
+            ['name' => 'Diácono', 'type' => 'ecclesiastical', 'description' => 'Diácono'],
+            ['name' => 'Missionário', 'type' => 'ecclesiastical', 'description' => 'Missionário'],
+            
+            // Administrativos (Funções)
+            ['name' => 'Tesoureiro', 'type' => 'administrative', 'description' => 'Responsável pelas finanças'],
+            ['name' => 'Secretário', 'type' => 'administrative', 'description' => 'Responsável pela secretaria'],
+            ['name' => 'Zelador', 'type' => 'administrative', 'description' => 'Responsável pela limpeza'],
+            
+            // Liderança (Ministérios)
+            ['name' => 'Líder de Louvor', 'type' => 'leadership', 'description' => 'Líder do Ministério de Louvor'],
+            ['name' => 'Líder de Jovens', 'type' => 'leadership', 'description' => 'Líder do Ministério de Jovens'],
+            ['name' => 'Líder de Crianças', 'type' => 'leadership', 'description' => 'Líder do Ministério Infantil'],
+        ];
+
+        foreach ($roles as $role) {
+            \App\Models\Role::create($role);
+        }
+
+        $this->call(EbdSeeder::class);
     }
 }

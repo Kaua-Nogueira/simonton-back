@@ -55,28 +55,35 @@ class TransactionController extends Controller
 
     public function store(StoreTransactionRequest $request): JsonResponse
     {
-        $transaction = Transaction::create($request->validated());
+        try {
+            $transaction = Transaction::create($request->validated());
 
-        if ($transaction->status === 'pending') {
-            $suggestions = $this->suggestionService->suggestMemberAndCategory($transaction);
-            
-            if ($suggestions['confidence'] > 0) {
-                $transaction->update([
-                    'member_id' => $suggestions['member_id'],
-                    'category_id' => $suggestions['category_id'],
-                    'cost_center_id' => $suggestions['cost_center_id'],
-                    'status' => 'suggested',
-                    'suggestion_confidence' => $suggestions['confidence'],
-                ]);
+            if ($transaction->status === 'pending') {
+                $suggestions = $this->suggestionService->suggestMemberAndCategory($transaction);
+                
+                if ($suggestions['confidence'] > 0) {
+                    $transaction->update([
+                        'member_id' => $suggestions['member_id'],
+                        'category_id' => $suggestions['category_id'],
+                        'cost_center_id' => $suggestions['cost_center_id'],
+                        'status' => 'suggested',
+                        'suggestion_confidence' => $suggestions['confidence'],
+                    ]);
+                }
             }
+
+            $this->auditService->log($transaction, 'created');
+
+            return response()->json([
+                'message' => 'Transaction created successfully',
+                'data' => new TransactionResource($transaction->fresh()),
+            ], 201);
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::error('Store Transaction Error: ' . $e->getMessage());
+            \Illuminate\Support\Facades\Log::error($e->getTraceAsString());
+            file_put_contents(storage_path('logs/debug_error.log'), $e->getMessage() . "\n" . $e->getTraceAsString());
+            return response()->json(['error' => $e->getMessage()], 500);
         }
-
-        $this->auditService->log($transaction, 'created');
-
-        return response()->json([
-            'message' => 'Transaction created successfully',
-            'data' => new TransactionResource($transaction->fresh()),
-        ], 201);
     }
 
     public function confirm(ConfirmTransactionRequest $request, Transaction $transaction): JsonResponse

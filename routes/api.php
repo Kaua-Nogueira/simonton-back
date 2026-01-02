@@ -7,36 +7,82 @@ use App\Http\Controllers\Api\CostCenterController;
 use App\Http\Controllers\Api\CashRegisterController;
 use App\Http\Controllers\Api\DashboardController;
 use App\Http\Controllers\Api\ReportController;
+use App\Http\Controllers\Api\RoleController;
+use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\EbdController;
 use Illuminate\Support\Facades\Route;
 
-// Transactions
-Route::get('/transactions', [TransactionController::class, 'index']);
-Route::get('/transactions/pending', [TransactionController::class, 'pending']);
-Route::get('/transactions/{transaction}', [TransactionController::class, 'show']);
-Route::post('/transactions', [TransactionController::class, 'store']);
-Route::post('/transactions/{transaction}/confirm', [TransactionController::class, 'confirm']);
-Route::post('/transactions/{transaction}/split', [TransactionController::class, 'split']);
-Route::post('/transactions/import', [TransactionController::class, 'importOFX']);
+// Public Routes
+Route::post('/login', [AuthController::class, 'login']);
+// Public PDF Route for direct browser access
+Route::get('meetings/{meeting}/pdf', [\App\Http\Controllers\Api\MeetingController::class, 'pdf']);
 
-// Members
-Route::get('/members', [MemberController::class, 'index']);
-Route::get('/members/{member}', [MemberController::class, 'show']);
-Route::post('/members', [MemberController::class, 'store']);
-Route::patch('/members/{member}', [MemberController::class, 'update']);
-Route::get('/members/{member}/contributions', [MemberController::class, 'contributions']);
+// Protected Routes
+Route::middleware('auth:sanctum')->group(function () {
+    Route::post('/logout', [AuthController::class, 'logout']);
+    Route::get('/user', [AuthController::class, 'user']);
 
-// Categories
-Route::get('/categories', [CategoryController::class, 'index']);
+    // Roles
+    Route::get('/roles', [RoleController::class, 'index']);
+    Route::post('/roles', [RoleController::class, 'store']);
+    Route::put('/roles/{role}', [RoleController::class, 'update']);
+    Route::delete('/roles/{role}', [RoleController::class, 'destroy']);
 
-// Cost Centers
-Route::get('/cost-centers', [CostCenterController::class, 'index']);
+    // Transactions
+    Route::get('/transactions', [TransactionController::class, 'index']);
+    Route::get('/transactions/pending', [TransactionController::class, 'pending']);
+    Route::get('/transactions/{transaction}', [TransactionController::class, 'show']);
+    Route::post('/transactions', [TransactionController::class, 'store']);
+    Route::post('/transactions/{transaction}/confirm', [TransactionController::class, 'confirm']);
+    Route::post('/transactions/{transaction}/split', [TransactionController::class, 'split']);
+    Route::post('/transactions/import', [TransactionController::class, 'importOFX']);
 
-// Cash Register
-Route::get('/cash-register', [CashRegisterController::class, 'index']);
-Route::get('/cash-register/balance', [CashRegisterController::class, 'currentBalance']);
+    // Members
+    Route::get('/members', [MemberController::class, 'index']);
+    Route::get('/members/{member}', [MemberController::class, 'show']);
+    Route::post('/members', [MemberController::class, 'store']);
+    Route::patch('/members/{member}', [MemberController::class, 'update']);
+    Route::get('/members/{member}/contributions', [MemberController::class, 'contributions']);
+    Route::post('/members/{member}/roles', [RoleController::class, 'assignRole']);
+    Route::delete('/members/{member}/roles/{role}', [RoleController::class, 'deleteAssignment']);
+    Route::get('/members/{member}/roles', [RoleController::class, 'getHistory']);
+    Route::get('/members/{member}/transfer-letter', [MemberController::class, 'transferLetter']);
 
-// Dashboard
-Route::get('/dashboard/stats', [DashboardController::class, 'stats']);
+    // Categories
+    Route::apiResource('categories', CategoryController::class);
 
-// Reports
-Route::get('/reports/{type}', [ReportController::class, 'show']);
+    // Cost Centers
+    Route::apiResource('cost-centers', CostCenterController::class);
+
+    // Cash Register
+    Route::get('/cash-register', [CashRegisterController::class, 'index']);
+    Route::get('/cash-register/balance', [CashRegisterController::class, 'currentBalance']);
+
+    // Dashboard
+    Route::get('/dashboard/stats', [DashboardController::class, 'stats']);
+
+    // EBD (Escola Dominical)
+    Route::get('/ebd/classes', [EbdController::class, 'index']);
+    Route::get('/ebd/classes/{class}', [EbdController::class, 'show']);
+    Route::post('/ebd/classes/{class}/attendance', [EbdController::class, 'storeAttendance']);
+
+    // Reports
+    Route::get('/reports/{type}', [ReportController::class, 'show']);
+
+    // Secretariat (Atas & Resoluções)
+    Route::apiResource('meetings', \App\Http\Controllers\Api\MeetingController::class);
+    Route::post('meetings/{meeting}/populate', [\App\Http\Controllers\Api\MeetingController::class, 'populateAttendance']);
+    Route::apiResource('resolutions', \App\Http\Controllers\Api\ResolutionController::class);
+
+    // Internal Societies
+    Route::apiResource('societies', \App\Http\Controllers\Api\SocietyController::class);
+    Route::apiResource('societies.members', \App\Http\Controllers\Api\SocietyMemberController::class);
+    Route::apiResource('societies.mandates', \App\Http\Controllers\Api\SocietyMandateController::class);
+    Route::post('societies/{society}/mandates/{mandate}/roles', [\App\Http\Controllers\Api\SocietyMandateController::class, 'addRole']);
+    Route::delete('societies/{society}/mandates/{mandate}/roles/{role}', [\App\Http\Controllers\Api\SocietyMandateController::class, 'removeRole']);
+
+    Route::get('societies/{society}/financial', [\App\Http\Controllers\Api\SocietyFinancialController::class, 'index']);
+    Route::post('societies/{society}/financial/movements', [\App\Http\Controllers\Api\SocietyFinancialController::class, 'storeMovement']);
+    Route::get('societies/{society}/financial/dues', [\App\Http\Controllers\Api\SocietyFinancialController::class, 'getDuesGrid']);
+    Route::post('societies/{society}/financial/dues', [\App\Http\Controllers\Api\SocietyFinancialController::class, 'payDues']);
+});

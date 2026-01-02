@@ -12,19 +12,33 @@ class Member extends Model
 
     protected $fillable = [
         'name',
+        'cpf',
         'email',
         'phone',
-        'cpf',
         'address',
         'city',
         'state',
         'zip_code',
         'status',
+        'roll_number',
+        'admission_date',
+        'admission_type',
+        'previous_church',
+        'dismissal_date',
+        'dismissal_type',
+        'destination_church',
     ];
 
     public function transactions(): HasMany
     {
         return $this->hasMany(Transaction::class);
+    }
+
+    public function roles(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
+    {
+        return $this->belongsToMany(Role::class, 'member_role')
+            ->withPivot('id', 'start_date', 'end_date')
+            ->orderByPivot('start_date', 'desc');
     }
 
     public function getFormattedCpfAttribute(): string

@@ -23,6 +23,13 @@ class UpdateMemberRequest extends FormRequest
             'state' => 'nullable|string|size:2',
             'zip_code' => 'nullable|string|size:8',
             'status' => 'sometimes|in:active,inactive',
+            'roll_number' => 'nullable|integer|unique:members,roll_number,' . $this->member->id,
+            'admission_date' => 'nullable|date',
+            'admission_type' => 'nullable|string|max:100',
+            'previous_church' => 'nullable|string|max:255',
+            'dismissal_date' => 'nullable|date',
+            'dismissal_type' => 'nullable|string|max:100',
+            'destination_church' => 'nullable|string|max:255',
         ];
     }
 

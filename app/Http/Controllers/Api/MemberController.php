@@ -13,7 +13,7 @@ class MemberController extends Controller
 {
     public function index(): JsonResponse
     {
-        $members = Member::withCount('transactions')->get();
+        $members = Member::with('roles')->withCount('transactions')->get();
         
         return response()->json(MemberResource::collection($members));
     }
@@ -27,12 +27,36 @@ class MemberController extends Controller
 
     public function store(StoreMemberRequest $request): JsonResponse
     {
-        $member = Member::create($request->validated());
+        try {
+            $data = $request->validated();
+            
+            // Auto-increment roll_number if not provided but requested or default?
+            // IPB logic: usually sequential. If user leaves empty, we generate next.
+            if (empty($data['roll_number'])) {
+                $maxRoll = Member::max('roll_number');
+                $data['roll_number'] = $maxRoll ? $maxRoll + 1 : 1;
+            }
 
-        return response()->json([
-            'message' => 'Member created successfully',
-            'data' => new MemberResource($member),
-        ], 201);
+            // Remove role_id from data before creation
+            $memberData = \Illuminate\Support\Arr::except($data, ['role_id']);
+            $member = Member::create($memberData);
+
+            if (!empty($data['role_id'])) {
+                $member->roles()->attach($data['role_id'], [
+                    'start_date' => now(),
+                ]);
+            }
+
+            return response()->json([
+                'message' => 'Member created successfully',
+                'data' => new MemberResource($member),
+            ], 201);
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'Error creating member: ' . $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ], 500);
+        }
     }
 
     public function update(UpdateMemberRequest $request, Member $member): JsonResponse
@@ -43,5 +67,10 @@ class MemberController extends Controller
             'message' => 'Member updated successfully',
             'data' => new MemberResource($member->fresh()),
         ]);
+    }
+
+    public function transferLetter(Member $member)
+    {
+        return view('reports.transfer-letter', compact('member'));
     }
 }
