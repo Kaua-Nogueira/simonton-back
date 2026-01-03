@@ -13,7 +13,7 @@ use App\Http\Controllers\Api\EbdController;
 use Illuminate\Support\Facades\Route;
 
 // Public Routes
-Route::post('/login', [AuthController::class, 'login']);
+Route::post('/login', [AuthController::class, 'login'])->name('login');
 // Public PDF Route for direct browser access
 Route::get('meetings/{meeting}/pdf', [\App\Http\Controllers\Api\MeetingController::class, 'pdf']);
 
@@ -85,4 +85,42 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('societies/{society}/financial/movements', [\App\Http\Controllers\Api\SocietyFinancialController::class, 'storeMovement']);
     Route::get('societies/{society}/financial/dues', [\App\Http\Controllers\Api\SocietyFinancialController::class, 'getDuesGrid']);
     Route::post('societies/{society}/financial/dues', [\App\Http\Controllers\Api\SocietyFinancialController::class, 'payDues']);
+
+    // Patrimony & Janitorial
+    Route::prefix('patrimony')->group(function () {
+        Route::apiResource('locations', \App\Http\Controllers\Api\Patrimony\LocationController::class);
+        Route::apiResource('categories', \App\Http\Controllers\Api\Patrimony\CategoryController::class);
+        Route::apiResource('assets', \App\Http\Controllers\Api\Patrimony\AssetController::class);
+        // Let's use custom routes for clarity since MaintenanceController handles both Requests and Schedules
+        Route::get('maintenance/requests', [\App\Http\Controllers\Api\Patrimony\MaintenanceController::class, 'indexRequests']);
+        Route::post('maintenance/requests', [\App\Http\Controllers\Api\Patrimony\MaintenanceController::class, 'storeRequest']);
+        Route::get('maintenance/requests/{maintenance}', [\App\Http\Controllers\Api\Patrimony\MaintenanceController::class, 'showRequest']);
+        Route::put('maintenance/requests/{maintenance}', [\App\Http\Controllers\Api\Patrimony\MaintenanceController::class, 'updateRequest']);
+        
+        Route::get('maintenance/schedules', [\App\Http\Controllers\Api\Patrimony\MaintenanceController::class, 'indexSchedules']);
+        Route::post('maintenance/schedules', [\App\Http\Controllers\Api\Patrimony\MaintenanceController::class, 'storeSchedule']);
+
+        Route::get('loans', [\App\Http\Controllers\Api\Patrimony\LoanController::class, 'index']);
+        Route::post('loans', [\App\Http\Controllers\Api\Patrimony\LoanController::class, 'store']);
+        Route::post('loans/{loan}/return', [\App\Http\Controllers\Api\Patrimony\LoanController::class, 'returnLoan']);
+
+        Route::get('spaces/bookings', [\App\Http\Controllers\Api\Patrimony\SpaceController::class, 'index']);
+        Route::post('spaces/bookings', [\App\Http\Controllers\Api\Patrimony\SpaceController::class, 'store']);
+        Route::post('spaces/bookings/{booking}/status', [\App\Http\Controllers\Api\Patrimony\SpaceController::class, 'updateStatus']);
+
+        Route::apiResource('consumables', \App\Http\Controllers\Api\Patrimony\ConsumableController::class);
+    });
+
+    // Finance - Budgets & Obligations
+    Route::prefix('finance')->group(function () {
+        Route::get('budgets/{budget}/status', [\App\Http\Controllers\Api\BudgetController::class, 'status']);
+        Route::get('budgets/{budget}/items', [\App\Http\Controllers\Api\BudgetController::class, 'items']);
+        Route::post('budgets/{budget}/items', [\App\Http\Controllers\Api\BudgetController::class, 'storeItem']);
+        Route::post('budgets/{budget}/movements', [\App\Http\Controllers\Api\BudgetController::class, 'storeMovement']);
+        Route::apiResource('budgets', \App\Http\Controllers\Api\BudgetController::class);
+
+        Route::get('remittances/preview', [\App\Http\Controllers\Api\RemittanceController::class, 'preview']);
+        Route::post('remittances/generate', [\App\Http\Controllers\Api\RemittanceController::class, 'generate']);
+        Route::apiResource('remittances', \App\Http\Controllers\Api\RemittanceController::class)->only(['index', 'show']);
+    });
 });

@@ -14,6 +14,14 @@ class Category extends Model
         'name',
         'type',
         'description',
+        'is_taxable',
+        'is_restricted',
+    ];
+
+
+    protected $casts = [
+        'is_taxable' => 'boolean',
+        'is_restricted' => 'boolean',
     ];
 
     public function transactions(): HasMany

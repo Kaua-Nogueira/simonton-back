@@ -56,7 +56,14 @@ class TransactionController extends Controller
     public function store(StoreTransactionRequest $request): JsonResponse
     {
         try {
-            $transaction = Transaction::create($request->validated());
+            $data = $request->validated();
+
+            // Force pending status if category or cost center is missing
+            if (empty($data['category_id']) || empty($data['cost_center_id'])) {
+                $data['status'] = 'pending';
+            }
+
+            $transaction = Transaction::create($data);
 
             if ($transaction->status === 'pending') {
                 $suggestions = $this->suggestionService->suggestMemberAndCategory($transaction);

@@ -18,6 +18,7 @@ return new class extends Migration
             $table->string('location')->default('Sala do Conselho');
             $table->enum('type', ['Ordinária', 'Extraordinária'])->default('Ordinária');
             $table->enum('status', ['Rascunho', 'Finalizada'])->default('Rascunho');
+            $table->enum('scope', ['council', 'assembly'])->default('council');
             
             // Content Sections
             $table->text('opening_prayer')->nullable();

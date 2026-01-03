@@ -11,9 +11,15 @@ use Illuminate\Http\JsonResponse;
 
 class MemberController extends Controller
 {
-    public function index(): JsonResponse
+    public function index(\Illuminate\Http\Request $request): JsonResponse
     {
-        $members = Member::with('roles')->withCount('transactions')->get();
+        $query = Member::with('roles')->withCount('transactions');
+
+        if ($request->has('status')) {
+            $query->where('status', $request->status);
+        }
+
+        $members = $query->orderBy('name')->get();
         
         return response()->json(MemberResource::collection($members));
     }

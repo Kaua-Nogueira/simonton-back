@@ -15,7 +15,8 @@ return new class extends Migration
             $table->id();
             $table->foreignId('meeting_id')->constrained()->onDelete('cascade');
             $table->foreignId('member_id')->constrained()->onDelete('cascade'); // Pastor or Elder
-            $table->enum('status', ['Presente', 'Ausente (Justificado)', 'Ausente (Sem Justificativa)']);
+            $table->string('role_name')->nullable();
+            $table->enum('status', ['Presente', 'Ausente', 'Ausente (Justificado)', 'Ausente (Sem Justificativa)'])->default('Ausente');
             $table->string('justification')->nullable(); // If justified
             
             $table->timestamps();

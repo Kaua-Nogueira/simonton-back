@@ -54,7 +54,7 @@ class DatabaseSeeder extends Seeder
             'name' => 'João Silva',
             'email' => 'joao@example.com',
             'phone' => '(11) 98765-4321',
-            'cpf' => '123.456.789-00',
+            'cpf' => '12345678900',
             'status' => 'active',
         ]);
 

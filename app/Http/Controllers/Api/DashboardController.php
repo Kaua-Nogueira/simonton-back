@@ -66,6 +66,14 @@ class DashboardController extends Controller
             'pendingTransactions' => $pendingCount,
             'topCategories' => $topCategories,
             'totalMembers' => Member::where('status', 'active')->count(),
+            'societiesStats' => \App\Models\Society::withCount('members')->get()->map(function($society) {
+                return [
+                    'id' => $society->id,
+                    'name' => $society->name,
+                    'count' => $society->members_count,
+                    'abbreviation' => $society->abbreviation
+                ];
+            }),
         ]);
     }
 }

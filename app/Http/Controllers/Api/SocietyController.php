@@ -30,11 +30,46 @@ class SocietyController extends Controller
         return response()->json($society, 201);
     }
 
+
     public function show(Society $society)
     {
-        // Load basic dashboards stats
+        // Stats: Members
         $society->loadCount(['members', 'activities']);
-        return response()->json($society);
+        $memberStats = [
+            'active' => $society->members()->where('status', 'active')->count(),
+            'cooperating' => $society->members()->where('status', 'cooperating')->count(),
+            'emeritus' => $society->members()->where('status', 'emeritus')->count(),
+        ];
+
+        // Stats: Financial Balance
+        $movements = \App\Models\SocietyFinancialMovement::where('society_id', $society->id)->get();
+        $balance = $movements->where('type', 'income')->sum('amount') - $movements->where('type', 'expense')->sum('amount');
+
+        // Stats: Leadership (Current President)
+        $currentPres = null;
+        $currentMandate = \App\Models\SocietyMandate::where('society_id', $society->id)
+            ->where('year', date('Y'))
+            ->with(['roles' => function($q) {
+                $q->where('role_name', 'like', '%Presidente%')->with('member');
+            }])
+            ->first();
+            
+        if ($currentMandate) {
+            $presRole = $currentMandate->roles->first();
+            if ($presRole) {
+                $currentPres = $presRole->member->name;
+            }
+        }
+
+        return response()->json([
+            'society' => $society,
+            'stats' => [
+                'members' => $memberStats,
+                'balance' => $balance,
+                'president' => $currentPres ?? 'Não definido',
+                'current_year' => date('Y')
+            ]
+        ]);
     }
 
     public function update(Request $request, Society $society)
