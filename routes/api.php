@@ -14,6 +14,15 @@ use Illuminate\Support\Facades\Route;
 
 // Public Routes
 Route::post('/login', [AuthController::class, 'login'])->name('login');
+// Debug Route for Session Config
+Route::get('/debug-session', function() {
+    return response()->json([
+        'session_config' => config('session'),
+        'cors_config' => config('cors'),
+        'env_same_site' => env('SESSION_SAME_SITE'),
+        'cookies' => request()->cookies->all(),
+    ]);
+});
 // Public PDF Route for direct browser access
 Route::get('meetings/{meeting}/pdf', [\App\Http\Controllers\Api\MeetingController::class, 'pdf']);
 
@@ -21,6 +30,7 @@ Route::get('meetings/{meeting}/pdf', [\App\Http\Controllers\Api\MeetingControlle
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout']);
     Route::get('/user', [AuthController::class, 'user']);
+    Route::put('/user/password', [AuthController::class, 'updatePassword']);
 
     // Roles
     Route::get('/roles', [RoleController::class, 'index']);
@@ -47,6 +57,11 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::delete('/members/{member}/roles/{role}', [RoleController::class, 'deleteAssignment']);
     Route::get('/members/{member}/roles', [RoleController::class, 'getHistory']);
     Route::get('/members/{member}/transfer-letter', [MemberController::class, 'transferLetter']);
+
+    // Member System Access
+    Route::post('/members/{member}/user', [App\Http\Controllers\MemberUserController::class, 'store']);
+    Route::put('/members/{member}/user', [App\Http\Controllers\MemberUserController::class, 'update']);
+    Route::delete('/members/{member}/user', [App\Http\Controllers\MemberUserController::class, 'destroy']);
 
     // Categories
     Route::apiResource('categories', CategoryController::class);

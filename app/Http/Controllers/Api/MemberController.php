@@ -13,7 +13,7 @@ class MemberController extends Controller
 {
     public function index(\Illuminate\Http\Request $request): JsonResponse
     {
-        $query = Member::with('roles')->withCount('transactions');
+        $query = Member::with(['roles', 'user'])->withCount('transactions');
 
         if ($request->has('status')) {
             $query->where('status', $request->status);

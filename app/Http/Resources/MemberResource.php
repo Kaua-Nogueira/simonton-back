@@ -26,6 +26,7 @@ class MemberResource extends JsonResource
             'createdAt' => $this->created_at->toISOString(),
             'updatedAt' => $this->updated_at->toISOString(),
             'roles' => $this->whenLoaded('roles'),
+            'user' => $this->whenLoaded('user'),
         ];
     }
 }
