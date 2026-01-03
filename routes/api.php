@@ -87,7 +87,9 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('societies/{society}/financial/dues', [\App\Http\Controllers\Api\SocietyFinancialController::class, 'payDues']);
 
     // Patrimony & Janitorial
-    Route::prefix('patrimony')->group(function () {
+    Route::prefix('patrimony')
+    ->as('patrimony.')
+    ->group(function () {
         Route::apiResource('locations', \App\Http\Controllers\Api\Patrimony\LocationController::class);
         Route::apiResource('categories', \App\Http\Controllers\Api\Patrimony\CategoryController::class);
         Route::apiResource('assets', \App\Http\Controllers\Api\Patrimony\AssetController::class);
