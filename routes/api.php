@@ -146,20 +146,20 @@ Route::middleware(['auth:sanctum', 'acl'])->group(function () {
     });
 
     // ACL / RBAC
-    Route::prefix('acl')->group(function () {
+    Route::prefix('acl')->as('acl.')->group(function () {
         // Permissions
-        Route::get('permissions', [\App\Http\Controllers\Api\Acl\PermissionController::class, 'index']);
-        Route::post('permissions/scan', [\App\Http\Controllers\Api\Acl\PermissionController::class, 'scan']);
+        Route::get('permissions', [\App\Http\Controllers\Api\Acl\PermissionController::class, 'index'])->name('permissions.index');
+        Route::post('permissions/scan', [\App\Http\Controllers\Api\Acl\PermissionController::class, 'scan'])->name('permissions.scan');
 
         // Roles
         Route::apiResource('roles', \App\Http\Controllers\Api\Acl\RoleController::class);
 
         // Users
-        Route::get('users', [\App\Http\Controllers\Api\Acl\UserController::class, 'index']);
-        Route::put('users/{user}', [\App\Http\Controllers\Api\Acl\UserController::class, 'update']);
+        Route::get('users', [\App\Http\Controllers\Api\Acl\UserController::class, 'index'])->name('users.index');
+        Route::put('users/{user}', [\App\Http\Controllers\Api\Acl\UserController::class, 'update'])->name('users.update');
 
         // Menus
-        Route::post('menus/reorder', [\App\Http\Controllers\Api\Acl\MenuController::class, 'reorder']);
+        Route::post('menus/reorder', [\App\Http\Controllers\Api\Acl\MenuController::class, 'reorder'])->name('menus.reorder');
         Route::apiResource('menus', \App\Http\Controllers\Api\Acl\MenuController::class);
     });
 });
