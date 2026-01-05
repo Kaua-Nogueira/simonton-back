@@ -14,6 +14,7 @@ class CategoryController extends Controller
 {
     public function index(Request $request): JsonResponse
     {
+        $this->authorize('viewAny', Category::class);
         $query = Category::query();
 
         if ($request->has('type')) {
@@ -26,23 +27,27 @@ class CategoryController extends Controller
     }
     public function store(StoreCategoryRequest $request): JsonResponse
     {
+        $this->authorize('create', Category::class);
         $category = Category::create($request->validated());
         return response()->json(new CategoryResource($category), 201);
     }
 
     public function show(Category $category): JsonResponse
     {
+        $this->authorize('view', $category);
         return response()->json(new CategoryResource($category));
     }
 
     public function update(UpdateCategoryRequest $request, Category $category): JsonResponse
     {
+        $this->authorize('update', $category);
         $category->update($request->validated());
         return response()->json(new CategoryResource($category));
     }
 
     public function destroy(Category $category): JsonResponse
     {
+        $this->authorize('delete', $category);
         $category->delete();
         return response()->json(null, 204);
     }

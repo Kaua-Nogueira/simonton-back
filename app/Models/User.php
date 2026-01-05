@@ -53,4 +53,58 @@ class User extends Authenticatable
     {
         return $this->belongsTo(Member::class);
     }
+
+    // ACL Relationships
+    public function roles()
+    {
+        return $this->belongsToMany(Role::class);
+    }
+
+    public function permissions()
+    {
+        return $this->belongsToMany(Permission::class);
+    }
+
+    // Helper Methods
+    public function hasRole($role)
+    {
+        if (is_string($role)) {
+            if ($this->role === $role) {
+                return true;
+            }
+            return $this->roles->contains('name', $role);
+        }
+        return !!$role->intersect($this->roles)->count();
+    }
+
+    public function getAllPermissions()
+    {
+        $permissions = $this->permissions;
+        
+        foreach ($this->roles as $role) {
+            $permissions = $permissions->merge($role->permissions);
+        }
+        
+        return $permissions->unique('id');
+    }
+
+    public function hasPermission($permission)
+    {
+        // Check direct permission
+        if ($this->permissions->contains('name', $permission)) {
+            return true;
+        }
+        // Check via roles
+        foreach ($this->roles as $role) {
+            if ($role->permissions->contains('name', $permission)) {
+                return true;
+            }
+        }
+        // Super Admin check
+        if ($this->hasRole('admin') || $this->hasRole('Admin')) {
+            return true;
+        }
+
+        return false;
+    }
 }

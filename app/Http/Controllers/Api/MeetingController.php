@@ -9,12 +9,14 @@ class MeetingController extends Controller
 {
     public function index()
     {
+        $this->authorize('viewAny', \App\Models\Meeting::class);
         $meetings = \App\Models\Meeting::withCount('resolutions')->orderBy('date', 'desc')->paginate(10);
         return response()->json($meetings);
     }
 
     public function store(\Illuminate\Http\Request $request)
     {
+        $this->authorize('create', \App\Models\Meeting::class);
         $validated = $request->validate([
             'date' => 'required|date',
             'time' => 'required',
@@ -30,6 +32,7 @@ class MeetingController extends Controller
 
     public function populateAttendance(\Illuminate\Http\Request $request, \App\Models\Meeting $meeting)
     {
+        $this->authorize('populateAttendance', $meeting);
         // Clear existing? Or just add missing? Let's just add missing to preserve status.
         // Logic:
         // if scope == council -> get Pastors and Presbyters
@@ -66,12 +69,14 @@ class MeetingController extends Controller
 
     public function show(\App\Models\Meeting $meeting)
     {
+        $this->authorize('view', $meeting);
         $meeting->load(['attendances.member', 'resolutions.responsible', 'documents', 'presidingOfficer', 'secretary']);
         return response()->json($meeting);
     }
 
     public function update(\Illuminate\Http\Request $request, \App\Models\Meeting $meeting)
     {
+        $this->authorize('update', $meeting);
         $validated = $request->validate([
             'date' => 'sometimes|date',
             'time' => 'sometimes',
@@ -95,6 +100,7 @@ class MeetingController extends Controller
 
     public function pdf(\App\Models\Meeting $meeting)
     {
+        $this->authorize('pdf', $meeting);
         $meeting->load(['attendances.member', 'resolutions.responsible', 'presidingOfficer', 'secretary']);
         
         // Cast date to Carbon instance if not already (should be handled by casts in model, but ensuring)
@@ -105,6 +111,7 @@ class MeetingController extends Controller
 
     public function destroy(\App\Models\Meeting $meeting)
     {
+        $this->authorize('delete', $meeting);
         $meeting->delete();
         return response()->noContent();
     }

@@ -10,11 +10,14 @@ class RoleController extends Controller
 {
     public function index()
     {
+        // Church roles usually public or just basic view?
+        $this->authorize('viewAny', Role::class);
         return response()->json(Role::all()->groupBy('type'));
     }
 
     public function store(Request $request)
     {
+        $this->authorize('create', Role::class);
         $validated = $request->validate([
             'name' => 'required|string',
             'type' => 'required|in:office,function',
@@ -28,6 +31,9 @@ class RoleController extends Controller
     // Assign a role to a member
     public function assignRole(Request $request, \App\Models\Member $member)
     {
+        // Check permission to update member
+        $this->authorize('update', $member);
+        
         $validated = $request->validate([
             'role_id' => 'required|exists:roles,id',
             'start_date' => 'required|date',
@@ -80,21 +86,7 @@ class RoleController extends Controller
 
     public function deleteAssignment(\App\Models\Member $member, Role $role)
     {
-        // Detach specific role from member
-        // In case of multiple history entries, this simplifies by detaching all. 
-        // ideally we would target by pivot ID, but eloquent 'detach' removes by ID.
-        // For history preservation, usually we wouldn't delete, but user asked for "Removal".
-        // To be safer, we could require pivot id, but for now standard detach works for "removing assignment" context.
-        // However, standard detach removes ALL rows for that role_id.
-        // Let's assume the user wants to remove a specific mistake.
-        // If we want to accept a pivot id, we need a new route structure.
-        // For now, let's use wherePivot if provided or just detach.
-        
-        // Simpler implementation: detach the role (removes all history for this role type for this member)
-        // OR better: Request body optional pivot_id?
-        // Let's stick to standard detach for "User wants to remove assignment". 
-        // If they want to remove just one entry from history, they might need a specific ID.
-        // Given constraints, I'll allow passing 'pivot_id' in query or just detach.
+        $this->authorize('update', $member);
         
         if (request()->has('pivot_id')) {
             $member->roles()->newPivotStatement()->where('id', request('pivot_id'))->delete();
@@ -107,12 +99,14 @@ class RoleController extends Controller
     
     public function getHistory(\App\Models\Member $member)
     {
+        $this->authorize('view', $member); // Viewing member details including roles
         // Return roles loaded with pivots
         return response()->json($member->roles);
     }
     
     public function update(Request $request, Role $role)
     {
+        $this->authorize('update', $role);
         $validated = $request->validate([
             'name' => 'required|string',
             'type' => 'required|in:office,function',
@@ -125,6 +119,7 @@ class RoleController extends Controller
 
     public function destroy(Role $role)
     {
+        $this->authorize('delete', $role);
         // Check if role is used?
         // For now, let's allow deletion. The constraint foreign key on member_role is 'cascade' 
         // as per migration: $table->foreignId('role_id')->constrained()->onDelete('cascade');

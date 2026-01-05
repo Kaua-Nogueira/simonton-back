@@ -22,13 +22,13 @@ class TransactionResource extends JsonResource
             'balanceBefore' => $this->balance_before ? (float) $this->balance_before : null,
             'balanceAfter' => $this->balance_after ? (float) $this->balance_after : null,
             'reconciledAt' => $this->reconciled_at?->toISOString(),
-            'member' => $this->whenLoaded('member', fn() => new MemberResource($this->member)),
-            'category' => $this->whenLoaded('category', fn() => new CategoryResource($this->category)),
-            'costCenter' => $this->whenLoaded('costCenter', fn() => new CostCenterResource($this->costCenter)),
-            'reconciledBy' => $this->whenLoaded('reconciledBy', fn() => [
+            'member' => $this->whenLoaded('member', fn() => $this->member ? new MemberResource($this->member) : null),
+            'category' => $this->whenLoaded('category', fn() => $this->category ? new CategoryResource($this->category) : null),
+            'costCenter' => $this->whenLoaded('costCenter', fn() => $this->costCenter ? new CostCenterResource($this->costCenter) : null),
+            'reconciledBy' => $this->whenLoaded('reconciledBy', fn() => $this->reconciledBy ? [
                 'id' => $this->reconciledBy->id,
                 'name' => $this->reconciledBy->name,
-            ]),
+            ] : null),
             'splitTransactions' => $this->whenLoaded('splitTransactions', fn() => TransactionSplitResource::collection($this->splitTransactions)),
             'createdAt' => $this->created_at->toISOString(),
             'updatedAt' => $this->updated_at->toISOString(),

@@ -11,11 +11,13 @@ class SocietyController extends Controller
 {
     public function index()
     {
+        $this->authorize('viewAny', Society::class);
         return response()->json(Society::withCount('members')->get());
     }
 
     public function store(Request $request)
     {
+        $this->authorize('create', Society::class);
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'abbreviation' => 'nullable|string|max:10',
@@ -33,6 +35,7 @@ class SocietyController extends Controller
 
     public function show(Society $society)
     {
+        $this->authorize('view', $society);
         // Stats: Members
         $society->loadCount(['members', 'activities']);
         $memberStats = [
@@ -74,6 +77,7 @@ class SocietyController extends Controller
 
     public function update(Request $request, Society $society)
     {
+        $this->authorize('update', $society);
         $validated = $request->validate([
             'name' => 'sometimes|string|max:255',
             'abbreviation' => 'sometimes|string|max:10',
@@ -90,6 +94,7 @@ class SocietyController extends Controller
 
     public function destroy(Society $society)
     {
+        $this->authorize('delete', $society);
         $society->delete();
         return response()->noContent();
     }

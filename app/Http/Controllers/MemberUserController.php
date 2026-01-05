@@ -27,26 +27,28 @@ class MemberUserController extends Controller
 
         $validated = $request->validate([
             'password' => ['required', 'string', 'min:8', 'confirmed'],
-            'role' => ['required', Rule::in(['viewer', 'reconciler', 'approver', 'admin'])],
+            'roles' => ['required', 'array'],
+            'roles.*' => ['exists:roles,id']
         ]);
 
         $user = User::create([
             'name' => $member->name,
             'email' => $member->email,
             'password' => Hash::make($validated['password']),
-            'role' => $validated['role'],
+            'role' => 'viewer', // Legacy fallback
             'member_id' => $member->id,
         ]);
 
+        if (!empty($validated['roles'])) {
+            $user->roles()->sync($validated['roles']);
+        }
+
         return response()->json([
             'message' => 'Acesso ao sistema concedido com sucesso!',
-            'user' => $user
+            'user' => $user->load('roles')
         ], 201);
     }
 
-    /**
-     * Update the user linked to a member.
-     */
     public function update(Request $request, Member $member)
     {
         $user = $member->user;
@@ -57,22 +59,22 @@ class MemberUserController extends Controller
 
         $validated = $request->validate([
             'password' => ['nullable', 'string', 'min:8', 'confirmed'],
-            'role' => ['sometimes', 'required', Rule::in(['viewer', 'reconciler', 'approver', 'admin'])],
+            'roles' => ['nullable', 'array'],
+            'roles.*' => ['exists:roles,id']
         ]);
 
         if ($request->filled('password')) {
             $user->password = Hash::make($validated['password']);
+            $user->save();
         }
 
-        if ($request->filled('role')) {
-            $user->role = $validated['role'];
+        if ($request->has('roles')) {
+            $user->roles()->sync($validated['roles']);
         }
-
-        $user->save();
 
         return response()->json([
             'message' => 'Acesso atualizado com sucesso!',
-            'user' => $user
+            'user' => $user->load('roles')
         ]);
     }
     

@@ -13,6 +13,8 @@ class MemberController extends Controller
 {
     public function index(\Illuminate\Http\Request $request): JsonResponse
     {
+        $this->authorize('viewAny', Member::class);
+
         $query = Member::with(['roles', 'user'])->withCount('transactions');
 
         if ($request->has('status')) {
@@ -26,6 +28,7 @@ class MemberController extends Controller
 
     public function show(Member $member): JsonResponse
     {
+        $this->authorize('view', $member);
         $member->load('transactions');
         
         return response()->json(new MemberResource($member));
@@ -33,6 +36,7 @@ class MemberController extends Controller
 
     public function store(StoreMemberRequest $request): JsonResponse
     {
+        $this->authorize('create', Member::class);
         try {
             $data = $request->validated();
             
@@ -67,6 +71,8 @@ class MemberController extends Controller
 
     public function update(UpdateMemberRequest $request, Member $member): JsonResponse
     {
+        $this->authorize('update', $member);
+
         $member->update($request->validated());
 
         return response()->json([
@@ -77,6 +83,7 @@ class MemberController extends Controller
 
     public function transferLetter(Member $member)
     {
+        $this->authorize('view', $member);
         return view('reports.transfer-letter', compact('member'));
     }
 }
