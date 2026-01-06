@@ -43,7 +43,11 @@ class TransactionController extends Controller
             $query->whereBetween('date', [$request->start_date, $request->end_date]);
         }
 
-        $transactions = $query->orderBy('date', 'desc')->get();
+        if ($request->has('member_id')) {
+            $query->where('member_id', $request->member_id);
+        }
+
+        $transactions = $query->orderBy('id', 'desc')->get();
 
         return response()->json(TransactionResource::collection($transactions));
     }

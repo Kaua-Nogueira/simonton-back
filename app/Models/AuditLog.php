@@ -18,13 +18,16 @@ class AuditLog extends Model
         'action',
         'old_values',
         'new_values',
+        'url',
         'ip_address',
         'user_agent',
+        'tags',
     ];
 
     protected $casts = [
         'old_values' => 'array',
         'new_values' => 'array',
+        'tags' => 'array',
     ];
 
     public function user(): BelongsTo

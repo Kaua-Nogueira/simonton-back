@@ -161,6 +161,9 @@ Route::middleware(['auth:sanctum', 'acl'])->group(function () {
         // Menus
         Route::post('menus/reorder', [\App\Http\Controllers\Api\Acl\MenuController::class, 'reorder'])->name('menus.reorder');
         Route::apiResource('menus', \App\Http\Controllers\Api\Acl\MenuController::class);
+        
+        // Audit Logs
+        Route::get('logs', [\App\Http\Controllers\Api\AuditLogController::class, 'index'])->name('logs.index');
     });
 
     // Treasury / Diaconia

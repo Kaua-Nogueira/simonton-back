@@ -30,6 +30,7 @@ class StoreMemberRequest extends FormRequest
             'dismissal_date' => 'nullable|date',
             'dismissal_type' => 'nullable|string|max:100',
             'destination_church' => 'nullable|string|max:255',
+            'status' => 'nullable|string|in:active,inactive,pending', // Allow pending status
         ];
     }
 

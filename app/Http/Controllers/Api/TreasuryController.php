@@ -156,22 +156,28 @@ class TreasuryController extends Controller
 
             // 2. Create Transaction in Finance Module
             foreach ($entry->splits as $split) {
-                // Determine Category based on Type (Hardcoded or Config?)
-                // Defaulting to ID 1 (Salário/Dízimo) or finding visually.
-                // Assuming Categories: 1=Dízimos, 2=Ofertas (Need to be dynamic later)
+                // Determine Category based on Type
+                // STRICT MAPPING for Tithes to ensure they appear in member records
                 $catName = match($split->type) {
-                    'tithe' => 'Dízimos',
+                    'tithe' => 'Dízimos', // Must match exactly what Member Profile looks for
                     'offering' => 'Ofertas',
                     'mission' => 'Missões',
                     default => 'Outros',
                 };
                 
-                // Try to find category
-                $category = \App\Models\Category::where('name', 'like', $catName . '%')->first();
-                $categoryId = $category ? $category->id : 1; // Fallback
+                // Find or Create Category
+                $category = \App\Models\Category::firstOrCreate(
+                    ['name' => $catName],
+                    ['type' => 'income', 'description' => 'Categoria automática do sistema']
+                );
+                $categoryId = $category->id;
                 
-                // Cost Center: Default to "Receitas" or 1
-                $costCenterId = 1; 
+                // Cost Center: Default to "Geral"
+                $costCenter = \App\Models\CostCenter::firstOrCreate(
+                    ['name' => 'Geral'],
+                    ['description' => 'Centro de custo padrão']
+                );
+                $costCenterId = $costCenter->id; 
 
                 // Description
                 $desc = "Diaconia #{$entry->id} - " . ($split->is_digital ? "Digital" : "Espécie");
