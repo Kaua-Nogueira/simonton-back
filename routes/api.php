@@ -162,4 +162,16 @@ Route::middleware(['auth:sanctum', 'acl'])->group(function () {
         Route::post('menus/reorder', [\App\Http\Controllers\Api\Acl\MenuController::class, 'reorder'])->name('menus.reorder');
         Route::apiResource('menus', \App\Http\Controllers\Api\Acl\MenuController::class);
     });
+
+    // Treasury / Diaconia
+    Route::prefix('treasury')->as('treasury.')->group(function () {
+        Route::get('entries', [\App\Http\Controllers\Api\TreasuryController::class, 'index'])->name('entries.index');
+        Route::post('entries', [\App\Http\Controllers\Api\TreasuryController::class, 'store'])->name('entries.store');
+        Route::get('entries/{entry}', [\App\Http\Controllers\Api\TreasuryController::class, 'show'])->name('entries.show');
+        Route::put('entries/{entry}/cash', [\App\Http\Controllers\Api\TreasuryController::class, 'updateCash'])->name('entries.cash.update');
+        Route::post('entries/{entry}/splits', [\App\Http\Controllers\Api\TreasuryController::class, 'addSplit'])->name('entries.splits.add');
+        Route::delete('entries/{entry}/splits/{split}', [\App\Http\Controllers\Api\TreasuryController::class, 'removeSplit'])->name('entries.splits.remove');
+        Route::post('entries/{entry}/submit', [\App\Http\Controllers\Api\TreasuryController::class, 'submit'])->name('entries.submit');
+        Route::post('entries/{entry}/confirm', [\App\Http\Controllers\Api\TreasuryController::class, 'confirm'])->name('entries.confirm');
+    });
 });
