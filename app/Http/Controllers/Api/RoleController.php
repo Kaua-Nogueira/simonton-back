@@ -21,6 +21,7 @@ class RoleController extends Controller
         $validated = $request->validate([
             'name' => 'required|string',
             'type' => 'required|in:office,function',
+            'category' => 'nullable|string',
             'description' => 'nullable|string'
         ]);
 
@@ -110,6 +111,7 @@ class RoleController extends Controller
         $validated = $request->validate([
             'name' => 'required|string',
             'type' => 'required|in:office,function',
+            'category' => 'nullable|string',
             'description' => 'nullable|string'
         ]);
 

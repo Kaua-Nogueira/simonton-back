@@ -177,4 +177,11 @@ Route::middleware(['auth:sanctum', 'acl'])->group(function () {
         Route::post('entries/{entry}/submit', [\App\Http\Controllers\Api\TreasuryController::class, 'submit'])->name('entries.submit');
         Route::post('entries/{entry}/confirm', [\App\Http\Controllers\Api\TreasuryController::class, 'confirm'])->name('entries.confirm');
     });
+    // Notifications
+    Route::group(['as' => 'notifications.'], function () {
+        Route::get('/notifications', [\App\Http\Controllers\Api\NotificationController::class, 'index'])->name('index');
+        Route::patch('/notifications/{id}/read', [\App\Http\Controllers\Api\NotificationController::class, 'markAsRead'])->name('read');
+        Route::patch('/notifications/read-all', [\App\Http\Controllers\Api\NotificationController::class, 'markAllAsRead'])->name('read-all');
+    });
+
 });

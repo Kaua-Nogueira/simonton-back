@@ -15,13 +15,14 @@ class UpdateMemberRequest extends FormRequest
     {
         return [
             'name' => 'sometimes|string|max:255',
-            'email' => 'sometimes|email|unique:members,email,' . $this->member->id,
-            'phone' => 'sometimes|string|max:20',
-            'cpf' => 'sometimes|string|size:11|unique:members,cpf,' . $this->member->id,
+            'email' => 'nullable|email|unique:members,email,' . $this->member->id,
+            'phone' => 'nullable|string|max:20',
+            'cpf' => 'nullable|string|size:11|unique:members,cpf,' . $this->member->id,
             'address' => 'nullable|string|max:255',
             'city' => 'nullable|string|max:100',
             'state' => 'nullable|string|size:2',
             'zip_code' => 'nullable|string|size:8',
+            'office_id' => 'nullable|exists:roles,id',
             'status' => 'sometimes|in:active,inactive',
             'roll_number' => 'nullable|integer|unique:members,roll_number,' . $this->member->id,
             'admission_date' => 'nullable|date',

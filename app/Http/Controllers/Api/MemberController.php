@@ -21,7 +21,7 @@ class MemberController extends Controller
             $query->where('status', $request->status);
         }
 
-        $members = $query->orderBy('name')->get();
+        $members = $query->withMax('transactions as last_contribution', 'date')->orderBy('name')->get();
         
         return response()->json(MemberResource::collection($members));
     }
@@ -47,12 +47,20 @@ class MemberController extends Controller
                 $data['roll_number'] = $maxRoll ? $maxRoll + 1 : 1;
             }
 
-            // Remove role_id from data before creation
-            $memberData = \Illuminate\Support\Arr::except($data, ['role_id']);
+            // Remove role_id and office_id from data before creation
+            $memberData = \Illuminate\Support\Arr::except($data, ['role_id', 'office_id']);
             $member = Member::create($memberData);
 
+            // Attach Function Role
             if (!empty($data['role_id'])) {
                 $member->roles()->attach($data['role_id'], [
+                    'start_date' => now(),
+                ]);
+            }
+
+            // Attach Office Role
+            if (!empty($data['office_id'])) {
+                $member->roles()->attach($data['office_id'], [
                     'start_date' => now(),
                 ]);
             }
@@ -72,8 +80,39 @@ class MemberController extends Controller
     public function update(UpdateMemberRequest $request, Member $member): JsonResponse
     {
         $this->authorize('update', $member);
+        
+        $data = $request->validated();
 
-        $member->update($request->validated());
+        // Handle Office Update
+        if (array_key_exists('office_id', $data)) {
+            $newOfficeId = $data['office_id'];
+            
+            // Get current active office
+            $currentOffice = $member->roles()->where('type', 'office')
+                ->where(function ($query) {
+                    $query->whereNull('end_date')->orWhere('end_date', '>', now());
+                })->first();
+
+            // If changing office (or setting initial)
+            if (($currentOffice && $currentOffice->id != $newOfficeId) || (!$currentOffice && $newOfficeId)) {
+                
+                // Finalize old office
+                if ($currentOffice) {
+                     $member->roles()->updateExistingPivot($currentOffice->id, [
+                        'end_date' => now()
+                    ]);
+                }
+
+                // Assign new office if not clearing (assuming 'none' sends null or handled)
+                if ($newOfficeId) {
+                    $member->roles()->attach($newOfficeId, ['start_date' => now()]);
+                }
+            }
+            
+            unset($data['office_id']);
+        }
+
+        $member->update($data);
 
         return response()->json([
             'message' => 'Member updated successfully',

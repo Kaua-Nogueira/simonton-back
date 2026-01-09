@@ -23,6 +23,7 @@ class StoreMemberRequest extends FormRequest
             'state' => 'nullable|string|size:2',
             'zip_code' => 'nullable|string|size:8',
             'role_id' => 'nullable|exists:roles,id',
+            'office_id' => 'nullable|exists:roles,id',
             'roll_number' => 'nullable|integer|unique:members,roll_number',
             'admission_date' => 'nullable|date',
             'admission_type' => 'nullable|string|max:100',

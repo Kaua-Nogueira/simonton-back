@@ -23,6 +23,7 @@ class MemberResource extends JsonResource
             'status' => $this->status,
             'transactionsCount' => $this->when(isset($this->transactions_count), $this->transactions_count),
             'totalContributions' => $this->when(isset($this->total_contributions), (float) $this->total_contributions),
+            'lastContribution' => $this->last_contribution,
             'createdAt' => $this->created_at->toISOString(),
             'updatedAt' => $this->updated_at->toISOString(),
             'roles' => $this->whenLoaded('roles'),

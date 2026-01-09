@@ -7,16 +7,20 @@ use Illuminate\Support\Facades\DB;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
-        DB::statement("ALTER TABLE members MODIFY COLUMN status ENUM('active', 'inactive', 'pending') NOT NULL DEFAULT 'active'");
+        // O SQLite aceita qualquer string, então não precisamos alterar a estrutura nele.
+        // O MySQL é rigoroso, então nele precisamos rodar o comando.
+        if (DB::getDriverName() !== 'sqlite') {
+            DB::statement("ALTER TABLE members MODIFY COLUMN status ENUM('active', 'inactive', 'pending') NOT NULL DEFAULT 'active'");
+        }
     }
 
     public function down(): void
     {
-        DB::statement("ALTER TABLE members MODIFY COLUMN status ENUM('active', 'inactive') NOT NULL DEFAULT 'active'");
+        if (DB::getDriverName() !== 'sqlite') {
+            // Cuidado: Ao reverter, registros com 'pending' no MySQL podem dar erro se não tratados antes.
+            DB::statement("ALTER TABLE members MODIFY COLUMN status ENUM('active', 'inactive') NOT NULL DEFAULT 'active'");
+        }
     }
 };

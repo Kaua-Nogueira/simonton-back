@@ -129,10 +129,23 @@ class TreasuryController extends Controller
         
         $totalSplits = $entry->splits->sum('amount');
         
+
         $entry->update([
             'status' => 'pending',
             'total_amount' => $totalSplits
         ]);
+
+        // Notify Treasurers
+        // Find users who have the role 'Tesoureiro'
+        // Assuming strict role check here. Better would be checking permission 'treasury.approve' if using permissions.
+        // Let's stick to the Role name for now as requested.
+        $treasurers = \App\Models\User::whereHas('roles', function($q) {
+            $q->where('name', 'Tesoureiro');
+        })->get();
+
+        if ($treasurers->count() > 0) {
+            \Illuminate\Support\Facades\Notification::send($treasurers, new \App\Notifications\NewDiaconiaConference($entry));
+        }
 
         return response()->json($entry);
     }

@@ -19,7 +19,11 @@ return [
 
     'allowed_methods' => ['*'],
 
-    'allowed_origins' => ['http://localhost:3000', 'http://localhost:3001'],
+    'allowed_origins' => [
+        'http://localhost:3000', 
+        'http://localhost:3001',
+        'http://192.168.0.59:3001',  // WiFi - Acesso via tablet/mobile
+    ],
 
     'allowed_origins_patterns' => [],
 
