@@ -13,7 +13,10 @@ class NotificationController extends Controller
      */
     public function index(Request $request)
     {
-        $notifications = $request->user()->notifications()->paginate(20);
+        $user = $request->user();
+        $count = $user->notifications()->count();
+        \Illuminate\Support\Facades\Log::info("Notification check for user {$user->id} ({$user->email}): Found {$count}");
+        $notifications = $user->notifications()->paginate(20);
 
         return response()->json($notifications);
     }

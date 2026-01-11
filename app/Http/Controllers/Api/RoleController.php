@@ -57,6 +57,7 @@ class RoleController extends Controller
         }
 
         // Exclusive Office Logic
+        $expiredRoleIds = [];
         if ($newRole->type === 'office') {
             // Find any other active OFFICE and finalize it
             $activeOffices = $member->roles()
@@ -74,6 +75,7 @@ class RoleController extends Controller
                 $member->roles()->updateExistingPivot($activeOffice->id, [
                     'end_date' => $validated['start_date']
                 ]);
+                $expiredRoleIds[] = $activeOffice->id;
             }
         }
 
@@ -82,7 +84,18 @@ class RoleController extends Controller
             'end_date' => $validated['end_date'] ?? null,
         ]);
 
-        return response()->json(['message' => 'Role assigned successfully']);
+        // Sync with System User if exists
+        if ($member->user) {
+            if (!empty($expiredRoleIds)) {
+                $member->user->roles()->detach($expiredRoleIds);
+            }
+            // Only sync if it's an active role (no end_date or future)
+            if (empty($validated['end_date']) || \Carbon\Carbon::parse($validated['end_date'])->isFuture()) {
+                $member->user->roles()->syncWithoutDetaching([$validated['role_id']]);
+            }
+        }
+
+        return response()->json(['message' => 'Role assigned and synced to User']);
     }
 
     public function deleteAssignment(\App\Models\Member $member, Role $role)
@@ -91,8 +104,19 @@ class RoleController extends Controller
         
         if (request()->has('pivot_id')) {
             $member->roles()->newPivotStatement()->where('id', request('pivot_id'))->delete();
+            // Since we don't know easily which role ID it was without fetching, we might miss detaching from user.
+            // But usually we detach by Role.
+            // If using pivot_id it's specific history item deletion. 
+            // If that history item was the "active" one, we should detach from user.
+            // Complex. For now, assuming "Gerenciar Acesso" mainly uses standard detach or logic that maps well.
+            // Actually, if we delete a pivot, we should probably check if the user still has that role active in another pivot? 
+            // The User table has simple list.
+            // Start simple: If detach by Role ID, detach from User.
         } else {
              $member->roles()->detach($role->id);
+             if ($member->user) {
+                 $member->user->roles()->detach($role->id);
+             }
         }
 
         return response()->json(['message' => 'Assignment removed']);

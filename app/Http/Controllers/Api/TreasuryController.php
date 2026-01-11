@@ -135,12 +135,10 @@ class TreasuryController extends Controller
             'total_amount' => $totalSplits
         ]);
 
-        // Notify Treasurers
-        // Find users who have the role 'Tesoureiro'
-        // Assuming strict role check here. Better would be checking permission 'treasury.approve' if using permissions.
-        // Let's stick to the Role name for now as requested.
+        // Notify Treasurers & Admins
+        // We notify anyone with the 'Tesoureiro' role or 'admin' role to ensure coverage.
         $treasurers = \App\Models\User::whereHas('roles', function($q) {
-            $q->where('name', 'Tesoureiro');
+            $q->whereIn('name', ['Tesoureiro', 'admin', 'Admin']);
         })->get();
 
         if ($treasurers->count() > 0) {
@@ -210,6 +208,13 @@ class TreasuryController extends Controller
                     'notes' => $split->description
                 ]);
             }
+
+            // 3. Clear Notifications for this Entry
+            // We want to delete any notification of type NewDiaconiaConference that refers to this entry_id
+            \Illuminate\Support\Facades\DB::table('notifications')
+                ->where('type', 'App\Notifications\NewDiaconiaConference')
+                ->where('data', 'like', '%"entry_id":' . $entry->id . ',%') // JSON search (simple)
+                ->delete();
         });
 
         return response()->json(['message' => 'Confirmed and Processed', 'entry' => $entry]);

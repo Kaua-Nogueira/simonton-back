@@ -40,8 +40,8 @@ class NewDiaconiaConference extends Notification
     {
         return [
             'icon' => 'Coins', // Lucide icon name
-            'title' => 'Nova Conferência Diaconal',
-            'message' => 'Uma nova conferência foi submetida para revisão.',
+            'title' => 'Conferência Pendente',
+            'message' => "Fechamento de conferência dominical (#{$this->entry->id}) aguardando confirmação.",
             'action_url' => "/tesouraria/revisao/{$this->entry->id}",
             'entry_id' => $this->entry->id,
             'amount' => $this->entry->total_amount ?? 0,
