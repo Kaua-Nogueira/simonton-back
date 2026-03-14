@@ -21,8 +21,42 @@ class ReportController extends Controller
             'category' => $this->categoryReport($startDate, $endDate),
             'member' => $this->memberReport($startDate, $endDate),
             'transfer' => $this->transferReport($startDate, $endDate),
+            'trend' => $this->trendReport(),
             default => response()->json(['message' => 'Invalid report type'], 400),
         };
+    }
+
+    private function trendReport(): JsonResponse
+    {
+        // Get last 6 months trend
+        $data = [];
+        for ($i = 5; $i >= 0; $i--) {
+            $month = now()->subMonths($i);
+            $start = $month->copy()->startOfMonth();
+            $end = $month->copy()->endOfMonth();
+
+            $income = Transaction::where('type', 'income')
+                ->where('status', 'confirmed')
+                ->whereBetween('date', [$start, $end])
+                ->sum('amount');
+
+            $expense = Transaction::where('type', 'expense')
+                ->where('status', 'confirmed')
+                ->whereBetween('date', [$start, $end])
+                ->sum('amount');
+
+            $data[] = [
+                'month' => $month->format('M'),
+                'entradas' => $income,
+                'saidas' => $expense,
+                'balance' => $income - $expense,
+            ];
+        }
+
+        return response()->json([
+            'type' => 'trend',
+            'data' => $data,
+        ]);
     }
 
     private function incomeReport($startDate, $endDate): JsonResponse

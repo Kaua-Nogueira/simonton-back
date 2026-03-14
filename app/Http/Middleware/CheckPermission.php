@@ -22,8 +22,8 @@ class CheckPermission
             return response()->json(['message' => 'Unauthenticated.'], 401);
         }
 
-        // Admin Bypass
-        if ($user->hasRole('admin') || $user->hasRole('Admin')) {
+        // Super Admin Bypass
+        if ($user->isSuperAdmin()) {
              return $next($request);
         }
 
@@ -34,7 +34,8 @@ class CheckPermission
             \Illuminate\Support\Facades\Log::error('ACL Security Alert: Attempt to access unnamed route', [
                 'user_id' => $user->id,
                 'ip' => $request->ip(),
-                'url' => $request->url()
+                'url' => $request->url(),
+                'method' => $request->method()
             ]);
             return response()->json(['message' => 'Security Error: Route must be named for authorization.'], 403);
         }
@@ -45,7 +46,10 @@ class CheckPermission
             'auth.logout', 
             'auth.user', 
             'auth.password.update',
-            'dashboard.stats', // Usually visible to all dashboard users, or handle with permission "dashboard.view"
+            'dashboard.stats', 
+            'notifications.index',
+            'notifications.read',
+            'notifications.read-all',
         ];
 
         if (in_array($routeName, $exemptRoutes)) {
@@ -56,6 +60,7 @@ class CheckPermission
             \Illuminate\Support\Facades\Log::warning('ACL Access Denied', [
                 'user_id' => $user->id,
                 'user_name' => $user->name,
+                'role' => $user->roles->pluck('name'),
                 'route' => $routeName,
                 'ip' => $request->ip()
             ]);

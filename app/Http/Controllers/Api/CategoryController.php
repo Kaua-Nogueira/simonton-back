@@ -21,6 +21,12 @@ class CategoryController extends Controller
             $query->where('type', $request->type);
         }
 
+        if ($request->boolean('tree')) {
+            $query->roots()->with('allChildren');
+        }
+
+        $query->orderBy('code')->orderBy('name');
+
         $categories = $query->get();
 
         return response()->json(CategoryResource::collection($categories));

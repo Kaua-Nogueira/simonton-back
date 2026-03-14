@@ -16,8 +16,10 @@ class UpdateCategoryRequest extends FormRequest
         return [
             'name' => 'required|string|max:255',
             'type' => 'required|in:income,expense',
-            'icon' => 'nullable|string|max:50',
-            'color' => 'nullable|string|max:20',
+            'description' => 'nullable|string',
+            'parent_id' => 'nullable|exists:categories,id',
+            'code' => 'nullable|string|max:20|unique:categories,code,' . $this->category->id,
+            'is_active' => 'boolean',
         ];
     }
 }

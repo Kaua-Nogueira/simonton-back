@@ -12,13 +12,10 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
-        $middleware->api(prepend: [
-            \Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful::class,
-            \Illuminate\Session\Middleware\StartSession::class, // Force session start
-        ]);
+        $middleware->statefulApi();
 
         $middleware->alias([
-            'verified' => \App\Http\Middleware\EnsureEmailIsVerified::class,
+            'verified' => \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
             'acl' => \App\Http\Middleware\CheckPermission::class,
         ]);
 

@@ -12,7 +12,7 @@ class UserController extends Controller
      */
     public function index()
     {
-        return \App\Models\User::with('roles')->paginate(20);
+        return \App\Models\User::with(['roles', 'permissions'])->paginate(20);
     }
 
     /**
@@ -37,7 +37,7 @@ class UserController extends Controller
     public function update(\Illuminate\Http\Request $request, $id)
     {
         $user = \App\Models\User::findOrFail($id);
-        
+
         $validated = $request->validate([
             'roles' => 'array',
             'permissions' => 'array' // Direct permissions
@@ -46,7 +46,7 @@ class UserController extends Controller
         if (isset($validated['roles'])) {
             $user->roles()->sync($validated['roles']);
         }
-        
+
         if (isset($validated['permissions'])) {
             $user->permissions()->sync($validated['permissions']);
         }

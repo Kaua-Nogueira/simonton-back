@@ -22,18 +22,19 @@ class RestoreAdminAccessSeeder extends Seeder
         try {
             foreach ($routes as $route) {
                 $name = $route->getName();
-                
+
                 // Filter relevant API routes
-                if ($name && 
-                    !str_starts_with($name, 'sanctum.') && 
+                if (
+                    $name &&
+                    !str_starts_with($name, 'sanctum.') &&
                     !str_starts_with($name, 'ignition.') &&
                     !str_starts_with($name, '_ignition.')
                 ) {
                     Permission::firstOrCreate(
                         ['name' => $name],
                         [
-                            'description' => 'Auto generated from route', 
-                            'slug' => $name
+                            'group' => explode('.', $name)[0] ?? 'system',
+                            'description' => 'Auto generated from route'
                         ]
                     );
                     $permissionsCount++;
@@ -46,7 +47,7 @@ class RestoreAdminAccessSeeder extends Seeder
             $adminRole = Role::firstOrCreate(
                 ['name' => 'Admin'],
                 [
-                    'type' => 'system', // or 'function' depending on your enum
+                    'type' => 'system',
                     'description' => 'Super Administrator with Full Access'
                 ]
             );
@@ -55,31 +56,32 @@ class RestoreAdminAccessSeeder extends Seeder
             $adminRole->permissions()->sync($allPermissions->pluck('id'));
             $this->command->info("Admin Role synced with {$allPermissions->count()} permissions.");
 
-            // 3. Assign Role to Specific Admin User
-            $targetEmail = 'admin@admin.com';
-            $user = User::where('email', $targetEmail)->first();
+            // 3. Assign Role to Admin Users
+            $this->command->info('Assigning Admin role to authorized users...');
+            
+            // Handle specific admin emails and anyone with legacy 'admin' role
+            $adminEmails = ['admin@admin.com', 'admin@admin'];
+            $adminUsers = User::whereIn('email', $adminEmails)
+                ->orWhere('role', 'admin')
+                ->get();
 
-            if ($user) {
-                // Assign ACL Role
-                if (!$user->roles->contains($adminRole->id)) {
-                    $user->roles()->attach($adminRole->id);
-                    $this->command->info("Role 'Admin' attached to user {$targetEmail}.");
-                } else {
-                    $this->command->info("User {$targetEmail} already has 'Admin' role.");
+            if ($adminUsers->count() > 0) {
+                foreach ($adminUsers as $user) {
+                    if (!$user->roles->contains($adminRole->id)) {
+                        $user->roles()->attach($adminRole->id);
+                        $this->command->info("Role 'Admin' attached to user {$user->email}.");
+                    }
+                    
+                    // Legacy sync
+                    $user->role = 'admin';
+                    $user->save();
                 }
-
-                // Update Legacy Column (Safety Net)
-                $user->role = 'admin';
-                $user->save();
-                $this->command->info("Legacy 'role' column set to 'admin' for {$targetEmail}.");
-
             } else {
-                $this->command->error("User with email {$targetEmail} not found! Please create it first.");
+                $this->command->error("No admin users found to restore access!");
             }
 
             DB::commit();
             $this->command->info("✅ SUCCESS: Admin access fully restored.");
-
         } catch (\Exception $e) {
             DB::rollBack();
             $this->command->error("Failed to restore admin access: " . $e->getMessage());

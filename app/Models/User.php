@@ -66,45 +66,63 @@ class User extends Authenticatable
     }
 
     // Helper Methods
+    
+    /**
+     * Check if user has a specific role (by name).
+     * Now strictly uses the relationship, ignoring the legacy 'role' string column.
+     */
     public function hasRole($role)
     {
         if (is_string($role)) {
-            if ($this->role === $role) {
-                return true;
-            }
             return $this->roles->contains('name', $role);
         }
         return !!$role->intersect($this->roles)->count();
     }
 
+    /**
+     * Check if user is a Super Admin.
+     * Checks for 'Admin' role case-insensitively.
+     */
+    public function isSuperAdmin(): bool
+    {
+        return $this->roles->contains(function ($role) {
+            return strtolower($role->name) === 'admin';
+        });
+    }
+
+    protected $permissionCache = null;
+
     public function getAllPermissions()
     {
+        if ($this->permissionCache !== null) {
+            return $this->permissionCache;
+        }
+
         $permissions = $this->permissions;
         
         foreach ($this->roles as $role) {
             $permissions = $permissions->merge($role->permissions);
         }
         
-        return $permissions->unique('id');
+        $this->permissionCache = $permissions->unique('id');
+        return $this->permissionCache;
     }
 
     public function hasPermission($permission)
     {
-        // Check direct permission
-        if ($this->permissions->contains('name', $permission)) {
-            return true;
-        }
-        // Check via roles
-        foreach ($this->roles as $role) {
-            if ($role->permissions->contains('name', $permission)) {
-                return true;
-            }
-        }
         // Super Admin check
-        if ($this->hasRole('admin') || $this->hasRole('Admin')) {
+        if ($this->isSuperAdmin()) {
             return true;
         }
 
-        return false;
+        return $this->getAllPermissions()->contains('name', $permission);
+    }
+
+    public function givePermissionTo($permission)
+    {
+        $p = Permission::where('name', $permission)->first();
+        if ($p) {
+            $this->permissions()->syncWithoutDetaching([$p->id]);
+        }
     }
 }

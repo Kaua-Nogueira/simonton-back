@@ -22,10 +22,13 @@ return [
     'allowed_origins' => [
         'http://localhost:3000', 
         'http://localhost:3001',
-        'http://192.168.0.59:3001',  // WiFi - Acesso via tablet/mobile
+        'http://127.0.0.1:3000',
+        'http://127.0.0.1:3001',
     ],
 
-    'allowed_origins_patterns' => [],
+    'allowed_origins_patterns' => [
+        '~^https?://(localhost|127\.0\.0\.1|192\.168\.\d+\.\d+|172\.(1[6-9]|2\d|3[01])\.\d+\.\d+|10\.\d+\.\d+\.\d+)(:\d+)?$~'
+    ],
 
     'allowed_headers' => ['*'],
 

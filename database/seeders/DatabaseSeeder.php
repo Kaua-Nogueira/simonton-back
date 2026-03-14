@@ -81,6 +81,9 @@ class DatabaseSeeder extends Seeder
             \App\Models\Role::create($role);
         }
 
-        $this->call(EbdSeeder::class);
+        $this->call([
+            EbdSeeder::class,
+            FinancialCategoriesSeeder::class,
+        ]);
     }
 }

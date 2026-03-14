@@ -13,7 +13,9 @@ use App\Http\Controllers\Api\EbdController;
 use Illuminate\Support\Facades\Route;
 
 // Public Routes
-Route::post('/login', [AuthController::class, 'login'])->name('login');
+Route::post('/login', [AuthController::class, 'login'])
+    ->middleware('throttle:5,1')
+    ->name('login');
 // Debug Route for Session Config
 Route::get('/debug-session', function() {
     return response()->json([
@@ -21,6 +23,24 @@ Route::get('/debug-session', function() {
         'cors_config' => config('cors'),
         'env_same_site' => env('SESSION_SAME_SITE'),
         'cookies' => request()->cookies->all(),
+    ]);
+});
+
+Route::get('/debug-sanctum', function() {
+    $request = request();
+    $origin = $request->headers->get('origin');
+    $referer = $request->headers->get('referer');
+    $isStateful = \Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful::fromFrontend($request);
+    
+    return response()->json([
+        'is_stateful' => $isStateful,
+        'origin' => $origin,
+        'referer' => $referer,
+        'stateful_domains' => config('sanctum.stateful'),
+        'session_domain' => config('session.domain'),
+        'session_id' => session()->getId(),
+        'cookies' => $request->cookies->all(),
+        'sanctum_current_host' => \Laravel\Sanctum\Sanctum::currentRequestHost(),
     ]);
 });
 // Public PDF Route for direct browser access
@@ -86,6 +106,7 @@ Route::middleware(['auth:sanctum', 'acl'])->group(function () {
     Route::post('/ebd/classes/{class}/attendance', [EbdController::class, 'storeAttendance'])->name('ebd.classes.attendance');
 
     // Reports
+    Route::get('/reports/dizimos', [\App\Http\Controllers\Api\DizimosReportController::class, 'report'])->name('reports.dizimos');
     Route::get('/reports/{type}', [ReportController::class, 'show'])->name('reports.view');
 
     // Secretariat (Atas & Resoluções)
@@ -135,6 +156,7 @@ Route::middleware(['auth:sanctum', 'acl'])->group(function () {
     // Finance - Budgets & Obligations
     Route::prefix('finance')->as('finance.')->group(function () {
         Route::get('budgets/{budget}/status', [\App\Http\Controllers\Api\BudgetController::class, 'status'])->name('budgets.status');
+        Route::get('budgets/{budget}/dre', [\App\Http\Controllers\Api\BudgetController::class, 'dre'])->name('budgets.dre');
         Route::get('budgets/{budget}/items', [\App\Http\Controllers\Api\BudgetController::class, 'items'])->name('budgets.items');
         Route::post('budgets/{budget}/items', [\App\Http\Controllers\Api\BudgetController::class, 'storeItem'])->name('budgets.items.store');
         Route::post('budgets/{budget}/movements', [\App\Http\Controllers\Api\BudgetController::class, 'storeMovement'])->name('budgets.movements.store');
@@ -184,4 +206,7 @@ Route::middleware(['auth:sanctum', 'acl'])->group(function () {
         Route::patch('/notifications/read-all', [\App\Http\Controllers\Api\NotificationController::class, 'markAllAsRead'])->name('read-all');
     });
 
+
 });
+
+require __DIR__ . '/debug_acl.php';

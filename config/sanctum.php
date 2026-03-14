@@ -15,12 +15,19 @@ return [
     |
     */
 
-    'stateful' => explode(',', env('SANCTUM_STATEFUL_DOMAINS', sprintf(
-        '%s%s',
-        'localhost,localhost:3000,localhost:3001,127.0.0.1,127.0.0.1:8000,::1,192.168.0.59:3001',
-        Sanctum::currentApplicationUrlWithPort(),
-        // Sanctum::currentRequestHost(),
-    ))),
+    'stateful' => (function() {
+        $envStateful = env('SANCTUM_STATEFUL_DOMAINS');
+        $defaultStateful = 'localhost,localhost:3000,localhost:3001,127.0.0.1,127.0.0.1:8000,::1';
+        $base = $envStateful ?: $defaultStateful;
+        
+        $host = isset($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : null;
+        if ($host) {
+            $cleanHost = explode(':', $host)[0];
+            $base .= ",{$cleanHost},{$cleanHost}:3000,{$cleanHost}:3001";
+        }
+        
+        return explode(',', $base . ',' . Sanctum::currentApplicationUrlWithPort());
+    })(),
 
     /*
     |--------------------------------------------------------------------------
