@@ -37,5 +37,15 @@ class AppServiceProvider extends ServiceProvider
         Gate::policy(Meeting::class, MeetingPolicy::class);
         Gate::policy(Role::class, RolePolicy::class);
         Gate::policy(Society::class, SocietyPolicy::class);
+
+        // Dynamic Sanctum Stateful Domains for LAN access
+        if ($host = request()->getHost()) {
+            $stateful = config('sanctum.stateful', []);
+            $stateful[] = $host;
+            $stateful[] = "{$host}:3000";
+            $stateful[] = "{$host}:3001";
+            $stateful[] = "{$host}:8001";
+            config(['sanctum.stateful' => array_unique($stateful)]);
+        }
     }
 }
