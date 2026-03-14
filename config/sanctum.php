@@ -17,13 +17,13 @@ return [
 
     'stateful' => (function() {
         $envStateful = env('SANCTUM_STATEFUL_DOMAINS');
-        $defaultStateful = 'localhost,localhost:3000,localhost:3001,127.0.0.1,127.0.0.1:8000,::1';
+        $defaultStateful = 'simonton.ipvinhais.com.br,localhost,localhost:3000,localhost:3001,127.0.0.1,127.0.0.1:8000';
         $base = $envStateful ?: $defaultStateful;
         
         $host = isset($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : null;
         if ($host) {
             $cleanHost = explode(':', $host)[0];
-            $base .= ",{$cleanHost},{$cleanHost}:3000,{$cleanHost}:3001";
+            $base .= ",{$cleanHost}";
         }
         
         return explode(',', $base . ',' . Sanctum::currentApplicationUrlWithPort());
