@@ -17,16 +17,39 @@ return [
 
     'stateful' => (function() {
         $envStateful = env('SANCTUM_STATEFUL_DOMAINS');
-        $defaultStateful = 'simonton.ipvinhais.com.br,localhost,localhost:3000,localhost:3001,127.0.0.1,127.0.0.1:8000';
-        $base = $envStateful ?: $defaultStateful;
+        $frontendUrl = env('FRONTEND_URL');
+        $isProd = env('APP_ENV') === 'production';
         
+        $urls = [
+            'simonton.ipvinhais.com.br',
+            'localhost',
+            '127.0.0.1',
+            '::1',
+        ];
+        
+        if ($frontendUrl) {
+            $urls[] = parse_url($frontendUrl, PHP_URL_HOST);
+        }
+        
+        if ($envStateful) {
+            $urls = array_merge($urls, explode(',', $envStateful));
+        }
+        
+        // Add dynamic host for LAN/Local context
         $host = isset($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : null;
         if ($host) {
             $cleanHost = explode(':', $host)[0];
-            $base .= ",{$cleanHost}";
+            $urls[] = $cleanHost;
+            $urls[] = "{$cleanHost}:3000";
+            $urls[] = "{$cleanHost}:3001";
+            $urls[] = "{$cleanHost}:8001";
         }
         
-        return explode(',', $base . ',' . Sanctum::currentApplicationUrlWithPort());
+        // Include the app's own URL host
+        $appHost = parse_url(env('APP_URL', ''), PHP_URL_HOST);
+        if ($appHost) $urls[] = $appHost;
+        
+        return array_values(array_unique(array_filter($urls)));
     })(),
 
     /*
