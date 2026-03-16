@@ -75,6 +75,7 @@ Route::middleware(['auth:sanctum', 'acl'])->group(function () {
         Route::get('/members/{member}', [MemberController::class, 'show'])->name('show');
         Route::post('/members', [MemberController::class, 'store'])->name('store');
         Route::patch('/members/{member}', [MemberController::class, 'update'])->name('update');
+        Route::delete('/members/{member}', [MemberController::class, 'destroy'])->name('destroy');
         Route::get('/members/{member}/contributions', [MemberController::class, 'contributions'])->name('contributions');
         Route::post('/members/{member}/roles', [RoleController::class, 'assignRole'])->name('roles.assign');
         Route::delete('/members/{member}/roles/{role}', [RoleController::class, 'deleteAssignment'])->name('roles.revoke');

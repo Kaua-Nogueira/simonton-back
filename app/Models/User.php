@@ -29,24 +29,31 @@ class User extends Authenticatable
         'password' => 'hashed',
     ];
 
+    protected $appends = ['is_super_admin', 'all_permissions'];
+
     public function canView(): bool
     {
-        return in_array($this->role, ['viewer', 'reconciler', 'approver', 'admin']);
+        return $this->hasPermission('view-dashboard') || $this->isSuperAdmin();
     }
 
     public function canReconcile(): bool
     {
-        return in_array($this->role, ['reconciler', 'approver', 'admin']);
+        return $this->hasPermission('transactions.index') || $this->isSuperAdmin();
     }
 
     public function canApprove(): bool
     {
-        return in_array($this->role, ['approver', 'admin']);
+        return $this->hasPermission('transactions.confirm') || $this->isSuperAdmin();
     }
 
     public function isAdmin(): bool
     {
-        return $this->role === 'admin';
+        return $this->isSuperAdmin();
+    }
+
+    public function getIsSuperAdminAttribute(): bool
+    {
+        return $this->isSuperAdmin();
     }
 
     public function member()
@@ -69,25 +76,34 @@ class User extends Authenticatable
     
     /**
      * Check if user has a specific role (by name).
-     * Now strictly uses the relationship, ignoring the legacy 'role' string column.
      */
     public function hasRole($role)
     {
+        if ($this->isSuperAdmin()) return true;
+
+        $roles = $this->relationLoaded('roles') ? $this->roles : $this->roles()->get();
+
         if (is_string($role)) {
-            return $this->roles->contains('name', $role);
+            return $roles->contains('name', $role);
         }
-        return !!$role->intersect($this->roles)->count();
+        return !!$role->intersect($roles)->count();
     }
 
     /**
      * Check if user is a Super Admin.
-     * Checks for 'Admin' role case-insensitively.
      */
     public function isSuperAdmin(): bool
     {
-        return $this->roles->contains(function ($role) {
+        // Use relationLoaded to avoid triggering lazy loading exception if preventLazyLoading is on
+        $roles = $this->relationLoaded('roles') ? $this->roles : $this->roles()->get();
+        return $roles->contains(function ($role) {
             return strtolower($role->name) === 'admin';
         });
+    }
+
+    public function getAllPermissionsAttribute()
+    {
+        return $this->getAllPermissions()->pluck('name')->toArray();
     }
 
     protected $permissionCache = null;
@@ -98,9 +114,12 @@ class User extends Authenticatable
             return $this->permissionCache;
         }
 
-        $permissions = $this->permissions;
+        // Get direct permissions
+        $permissions = $this->permissions()->get();
         
-        foreach ($this->roles as $role) {
+        // Get permissions from roles
+        $userRoles = $this->roles()->with('permissions')->get();
+        foreach ($userRoles as $role) {
             $permissions = $permissions->merge($role->permissions);
         }
         
@@ -110,7 +129,6 @@ class User extends Authenticatable
 
     public function hasPermission($permission)
     {
-        // Super Admin check
         if ($this->isSuperAdmin()) {
             return true;
         }

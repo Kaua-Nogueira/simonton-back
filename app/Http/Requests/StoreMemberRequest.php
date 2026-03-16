@@ -31,7 +31,8 @@ class StoreMemberRequest extends FormRequest
             'dismissal_date' => 'nullable|date',
             'dismissal_type' => 'nullable|string|max:100',
             'destination_church' => 'nullable|string|max:255',
-            'status' => 'nullable|string|in:active,inactive,pending', // Allow pending status
+            'birth_date' => 'nullable|date',
+            'status' => 'nullable|string|in:active,inactive,pending',
         ];
     }
 
@@ -48,14 +49,14 @@ class StoreMemberRequest extends FormRequest
     protected function prepareForValidation(): void
     {
         // Remove formatting from CPF
-        if ($this->has('cpf')) {
+        if ($this->filled('cpf')) {
             $this->merge([
                 'cpf' => preg_replace('/[^0-9]/', '', $this->cpf),
             ]);
         }
 
         // Remove formatting from zip_code
-        if ($this->has('zip_code')) {
+        if ($this->filled('zip_code')) {
             $this->merge([
                 'zip_code' => preg_replace('/[^0-9]/', '', $this->zip_code),
             ]);

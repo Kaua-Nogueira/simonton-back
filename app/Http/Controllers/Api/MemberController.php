@@ -21,7 +21,10 @@ class MemberController extends Controller
             $query->where('status', $request->status);
         }
 
-        $members = $query->withMax('transactions as last_contribution', 'date')->orderBy('name')->get();
+        $members = $query->withSum('transactions as total_contributions', 'amount')
+            ->withMax('transactions as last_contribution', 'date')
+            ->orderBy('name')
+            ->get();
         
         return response()->json(MemberResource::collection($members));
     }
@@ -124,5 +127,21 @@ class MemberController extends Controller
     {
         $this->authorize('view', $member);
         return view('reports.transfer-letter', compact('member'));
+    }
+
+    public function destroy(Member $member): JsonResponse
+    {
+        $this->authorize('delete', $member);
+        
+        try {
+            $member->delete();
+            return response()->json([
+                'message' => 'Membro excluído com sucesso',
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'Erro ao excluir membro. Verifique se existem registros vinculados.',
+            ], 422);
+        }
     }
 }

@@ -12,11 +12,59 @@ class MenuController extends Controller
      */
     public function index()
     {
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+
+        if (!$user) {
+            return response()->json(['message' => 'Unauthorized'], 401);
+        }
+        
         // Return tree structure
-        return \App\Models\Menu::whereNull('parent_id')
+        $menus = \App\Models\Menu::whereNull('parent_id')
             ->with(['children.roles', 'children.permissions', 'children.children', 'roles', 'permissions'])
             ->orderBy('order')
             ->get();
+
+        if ($user->isSuperAdmin()) {
+            return $menus;
+        }
+
+        // Recursive filter for permissions
+        $filtered = $menus->map(function($menu) use ($user) {
+            return $this->filterMenu($menu, $user);
+        })->filter();
+
+        return array_values($filtered->toArray());
+    }
+
+    protected function filterMenu($menu, $user)
+    {
+        // Check children first
+        if ($menu->children->count() > 0) {
+            $filteredChildren = $menu->children->map(function($child) use ($user) {
+                return $this->filterMenu($child, $user);
+            })->filter();
+            
+            $menu->setRelation('children', $filteredChildren);
+        }
+
+        // If specific permissions are set, check them
+        if ($menu->permissions->count() > 0) {
+            $hasPermission = $menu->permissions->some(function($p) use ($user) {
+                return $user->hasPermission($p->name);
+            });
+            
+            if (!$hasPermission) return null;
+        }
+
+        // If no permissions set but has children, only show if at least one child is visible
+        if ($menu->permissions->count() === 0 && $menu->children->count() > 0) {
+            if ($menu->children->count() === 0) return null;
+        }
+
+        // If no permissions and no children, it's a "public/default" menu item (e.g. Dashboard)
+        
+        return $menu;
     }
 
     public function store(\Illuminate\Http\Request $request)

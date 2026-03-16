@@ -8,7 +8,7 @@ use App\Models\User;
 
 class Permission extends Model
 {
-    protected $fillable = ['name', 'group', 'description', 'method'];
+    protected $fillable = ['name', 'display_name', 'group', 'description', 'method'];
 
     public function roles()
     {

@@ -6,6 +6,7 @@ use App\Models\Category;
 use App\Models\CostCenter;
 use App\Models\Member;
 use App\Models\User;
+use App\Models\Role;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
 
@@ -84,6 +85,14 @@ class DatabaseSeeder extends Seeder
         $this->call([
             EbdSeeder::class,
             FinancialCategoriesSeeder::class,
+            AclSeeder::class,
         ]);
+
+        // Assign Admin role to the default user
+        $adminUser = User::where('email', 'admin@admin.com')->first();
+        $adminRole = Role::where('name', 'Admin')->first();
+        if ($adminUser && $adminRole) {
+            $adminUser->roles()->sync([$adminRole->id]);
+        }
     }
 }
