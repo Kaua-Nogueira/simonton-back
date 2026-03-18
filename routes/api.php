@@ -116,6 +116,7 @@ Route::middleware(['auth:sanctum', 'acl'])->group(function () {
     Route::apiResource('resolutions', \App\Http\Controllers\Api\ResolutionController::class);
 
     // Internal Societies
+    Route::get('societies/relatorio', [\App\Http\Controllers\Api\SocietyController::class, 'globalReport'])->name('societies.report');
     Route::apiResource('societies', \App\Http\Controllers\Api\SocietyController::class);
     Route::apiResource('societies.members', \App\Http\Controllers\Api\SocietyMemberController::class);
     Route::apiResource('societies.mandates', \App\Http\Controllers\Api\SocietyMandateController::class);
@@ -124,8 +125,15 @@ Route::middleware(['auth:sanctum', 'acl'])->group(function () {
 
     Route::get('societies/{society}/financial', [\App\Http\Controllers\Api\SocietyFinancialController::class, 'index'])->name('societies.financial.index');
     Route::post('societies/{society}/financial/movements', [\App\Http\Controllers\Api\SocietyFinancialController::class, 'storeMovement'])->name('societies.financial.movements');
+    Route::post('societies/{society}/financial/movements/{movement}/confirm', [\App\Http\Controllers\Api\SocietyFinancialController::class, 'confirmMovement'])->name('societies.financial.movements.confirm');
     Route::get('societies/{society}/financial/dues', [\App\Http\Controllers\Api\SocietyFinancialController::class, 'getDuesGrid'])->name('societies.financial.dues');
     Route::post('societies/{society}/financial/dues', [\App\Http\Controllers\Api\SocietyFinancialController::class, 'payDues'])->name('societies.financial.pay-dues');
+
+    Route::get('societies/{society}/obligations', [\App\Http\Controllers\Api\SocietyObligationController::class, 'index'])->name('societies.obligations.index');
+    Route::post('societies/{society}/obligations', [\App\Http\Controllers\Api\SocietyObligationController::class, 'store'])->name('societies.obligations.store');
+    Route::post('societies/{society}/obligations/{obligation}/pay', [\App\Http\Controllers\Api\SocietyObligationController::class, 'pay'])->name('societies.obligations.pay');
+
+    Route::apiResource('societies.activities', \App\Http\Controllers\Api\SocietyActivityController::class);
 
     // Patrimony & Janitorial
     Route::prefix('patrimony')
@@ -161,11 +169,26 @@ Route::middleware(['auth:sanctum', 'acl'])->group(function () {
         Route::get('budgets/{budget}/items', [\App\Http\Controllers\Api\BudgetController::class, 'items'])->name('budgets.items');
         Route::post('budgets/{budget}/items', [\App\Http\Controllers\Api\BudgetController::class, 'storeItem'])->name('budgets.items.store');
         Route::post('budgets/{budget}/movements', [\App\Http\Controllers\Api\BudgetController::class, 'storeMovement'])->name('budgets.movements.store');
+        Route::post('budgets/{budget}/items/{budgetItem}/generate-contas', [\App\Http\Controllers\Api\BudgetController::class, 'generateContasPagar'])->name('budgets.items.generate-contas');
         Route::apiResource('budgets', \App\Http\Controllers\Api\BudgetController::class);
 
         Route::get('remittances/preview', [\App\Http\Controllers\Api\RemittanceController::class, 'preview'])->name('remittances.preview');
         Route::post('remittances/generate', [\App\Http\Controllers\Api\RemittanceController::class, 'generate'])->name('remittances.generate');
         Route::apiResource('remittances', \App\Http\Controllers\Api\RemittanceController::class)->only(['index', 'show']);
+
+        // Contas a Pagar
+        Route::get('contas-pagar/dashboard', [\App\Http\Controllers\Api\ContaPagarController::class, 'dashboard'])->name('contas-pagar.dashboard');
+        Route::post('contas-pagar/{contaPagar}/pay', [\App\Http\Controllers\Api\ContaPagarController::class, 'pay'])->name('contas-pagar.pay');
+        Route::apiResource('contas-pagar', \App\Http\Controllers\Api\ContaPagarController::class);
+    });
+
+    // Bank Reconciliation
+    Route::prefix('reconciliation')->as('reconciliation.')->group(function () {
+        Route::post('import', [\App\Http\Controllers\Api\BankReconciliationController::class, 'import'])->name('import');
+        Route::get('pending', [\App\Http\Controllers\Api\BankReconciliationController::class, 'pending'])->name('pending');
+        Route::post('match', [\App\Http\Controllers\Api\BankReconciliationController::class, 'match'])->name('match');
+        Route::post('unmatch/{transaction}', [\App\Http\Controllers\Api\BankReconciliationController::class, 'unmatch'])->name('unmatch');
+        Route::post('ignore/{bankTransaction}', [\App\Http\Controllers\Api\BankReconciliationController::class, 'ignore'])->name('ignore');
     });
 
     // ACL / RBAC

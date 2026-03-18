@@ -20,8 +20,7 @@ class OFXImportService
 
             if ($amount && $date) {
                 $transactions[] = [
-                    'type' => $amount > 0 ? 'income' : 'expense',
-                    'amount' => abs($amount),
+                    'amount' => (float) $amount,
                     'description' => $description,
                     'date' => $this->parseOFXDate($date),
                     'payment_method' => $this->detectPaymentMethod($description),

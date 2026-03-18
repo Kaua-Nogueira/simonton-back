@@ -4,7 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class TreasuryEntry extends Model
+class TreasuryEntry extends BaseModel
 {
     protected $fillable = [
         'date',

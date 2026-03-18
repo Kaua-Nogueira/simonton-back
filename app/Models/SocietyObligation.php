@@ -5,23 +5,31 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class SocietyFinancialMovement extends Model
+class SocietyObligation extends Model
 {
     use HasFactory;
 
     protected $fillable = [
-        'society_id', 'description', 'amount', 'type', 'date', 'category', 
-        'attachment_path', 'is_confirmed'
+        'society_id', 
+        'description', 
+        'due_date', 
+        'amount', 
+        'status', 
+        'movement_id'
     ];
 
     protected $casts = [
-        'date' => 'date', 
+        'due_date' => 'date',
         'amount' => 'decimal:2',
-        'is_confirmed' => 'boolean'
     ];
 
     public function society()
     {
         return $this->belongsTo(Society::class);
+    }
+
+    public function movement()
+    {
+        return $this->belongsTo(SocietyFinancialMovement::class, 'movement_id');
     }
 }

@@ -50,6 +50,7 @@ class CheckPermission
             'notifications.index',
             'notifications.read',
             'notifications.read-all',
+            'acl.menus.index',
         ];
 
         if (in_array($routeName, $exemptRoutes)) {
@@ -57,6 +58,13 @@ class CheckPermission
         }
 
         if (!$user->hasPermission($routeName)) {
+            // Dynamic access for Society leaders/members
+            // We allow access at the middleware level because the Controllers/Policies
+            // will perform the granular check per society.
+            if (str_starts_with($routeName, 'societies.') && $user->member_id !== null) {
+                return $next($request);
+            }
+
             \Illuminate\Support\Facades\Log::warning('ACL Access Denied', [
                 'user_id' => $user->id,
                 'user_name' => $user->name,

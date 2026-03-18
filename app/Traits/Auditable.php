@@ -24,8 +24,6 @@ trait Auditable
         static::deleted(function (Model $model) {
             static::audit('delete', $model);
         });
-        
-        // You can add restored() or forceDeleted() if using SoftDeletes
     }
 
     /**
@@ -33,20 +31,35 @@ trait Auditable
      */
     protected static function audit(string $action, Model $model): void
     {
+        // Skip auditing the AuditLog model itself to avoid recursion
+        if ($model instanceof AuditLog) {
+            return;
+        }
+
         $oldValues = null;
         $newValues = null;
 
+        // Fields to omit from logs for security/redundancy
+        $ignoredFields = ['password', 'remember_token', 'two_factor_recovery_codes', 'two_factor_secret', 'updated_at', 'created_at', 'deleted_at'];
+
         if ($action === 'create') {
-            $newValues = $model->getAttributes();
+            $newValues = array_diff_key($model->getAttributes(), array_flip($ignoredFields));
         } elseif ($action === 'update') {
-            $oldValues = $model->getOriginal(); // or just specific changed keys
-            $newValues = $model->getChanges();
+            $oldValues = array_intersect_key($model->getOriginal(), $model->getChanges());
+            $newValues = array_diff_key($model->getChanges(), array_flip($ignoredFields));
+            
+            // Re-sync old values to exclude ignored ones
+            $oldValues = array_diff_key($oldValues, array_flip($ignoredFields));
+
+            if (empty($newValues)) {
+                return; // No meaningful changes
+            }
         } elseif ($action === 'delete') {
-            $oldValues = $model->getAttributes();
+            $oldValues = array_diff_key($model->getOriginal(), array_flip($ignoredFields));
         }
 
         AuditLog::create([
-            'user_id'        => Auth::id(), // Will be null if strictly system action, or if not logged in
+            'user_id'        => Auth::id(),
             'auditable_type' => get_class($model),
             'auditable_id'   => $model->getKey(),
             'action'         => $action,
@@ -55,7 +68,6 @@ trait Auditable
             'url'            => request()->fullUrl(),
             'ip_address'     => request()->ip(),
             'user_agent'     => request()->userAgent(),
-            'tags'           => null, // Can be extended later to support custom context
         ]);
     }
 }

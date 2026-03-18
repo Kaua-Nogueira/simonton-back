@@ -1,0 +1,176 @@
+<?php
+
+namespace App\Http\Controllers\Api;
+
+use App\Http\Controllers\Controller;
+use App\Models\ContaPagar;
+use App\Services\ContaPagarService;
+use Carbon\Carbon;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
+use Illuminate\Support\Str;
+
+class ContaPagarController extends Controller
+{
+    public function __construct(private ContaPagarService $service) {}
+
+    public function index(Request $request): JsonResponse
+    {
+        $query = ContaPagar::with(['category', 'costCenter', 'transaction'])
+            ->orderBy('data_vencimento', 'asc');
+
+        if ($request->status) {
+            $query->where('status', $request->status);
+        }
+
+        if ($request->mes && $request->ano) {
+            $query->whereYear('data_vencimento', $request->ano)
+                  ->whereMonth('data_vencimento', $request->mes);
+        }
+
+        if ($request->category_id) {
+            $query->where('category_id', $request->category_id);
+        }
+
+        return response()->json($query->get());
+    }
+
+    public function store(Request $request): JsonResponse
+    {
+        $data = $request->validate([
+            'descricao'       => 'required|string|max:255',
+            'valor'           => 'required|numeric|min:0.01',
+            'data_vencimento' => 'required|date',
+            'category_id'     => 'required|exists:categories,id',
+            'cost_center_id'  => 'nullable|exists:cost_centers,id',
+            'budget_item_id'  => 'nullable|exists:budget_items,id',
+            'recorrente'      => 'boolean',
+            'tipo_recorrencia'=> 'nullable|in:mensal,anual,personalizado',
+            'dia_vencimento'  => 'nullable|integer|between:1,31',
+            'data_inicio'     => 'nullable|date',
+            'data_fim'        => 'nullable|date|after_or_equal:data_inicio',
+            'meses'           => 'nullable|integer|min:1|max:60',
+        ]);
+
+        $data['user_id'] = auth()->id();
+
+        if (!empty($data['recorrente'])) {
+            $data['serie_id'] = Str::uuid()->toString();
+        }
+
+        $conta = ContaPagar::create($data);
+
+        $generated = [];
+        if ($conta->recorrente) {
+            $generated = $this->service->generateRecorrencia($conta, $data['meses'] ?? 12);
+        }
+
+        return response()->json([
+            'message'   => 'Conta criada com sucesso',
+            'data'      => $conta->load(['category', 'costCenter']),
+            'generated' => count($generated),
+        ], 201);
+    }
+
+    public function show(ContaPagar $contaPagar): JsonResponse
+    {
+        return response()->json($contaPagar->load(['category', 'costCenter', 'transaction', 'budgetItem']));
+    }
+
+    public function update(Request $request, ContaPagar $contaPagar): JsonResponse
+    {
+        $data = $request->validate([
+            'descricao'       => 'string|max:255',
+            'valor'           => 'numeric|min:0.01',
+            'data_vencimento' => 'date',
+            'category_id'     => 'exists:categories,id',
+            'cost_center_id'  => 'nullable|exists:cost_centers,id',
+            'status'          => 'in:pendente,vencido',
+            'toda_serie'      => 'boolean',
+        ]);
+
+        $todaSerie = $data['toda_serie'] ?? false;
+        unset($data['toda_serie']);
+
+        if ($todaSerie && $contaPagar->serie_id) {
+            ContaPagar::where('serie_id', $contaPagar->serie_id)
+                ->where('status', '!=', 'pago')
+                ->update($data);
+        } else {
+            $contaPagar->update($data);
+        }
+
+        return response()->json(['message' => 'Atualizado com sucesso', 'data' => $contaPagar->fresh()]);
+    }
+
+    public function destroy(Request $request, ContaPagar $contaPagar): JsonResponse
+    {
+        $todaSerie = $request->boolean('toda_serie');
+
+        if ($todaSerie && $contaPagar->serie_id) {
+            $series = ContaPagar::where('serie_id', $contaPagar->serie_id)->get();
+
+            // Delete linked transactions first
+            $transactionIds = $series->pluck('transaction_id')->filter();
+            if ($transactionIds->isNotEmpty()) {
+                \App\Models\Transaction::whereIn('id', $transactionIds)->delete();
+            }
+
+            $series->each->delete();
+        } else {
+            // Delete linked transaction if conta was paid
+            if ($contaPagar->transaction_id) {
+                \App\Models\Transaction::find($contaPagar->transaction_id)?->delete();
+            }
+
+            $contaPagar->delete();
+        }
+
+        return response()->json(['message' => 'Removido com sucesso']);
+    }
+
+    public function pay(Request $request, ContaPagar $contaPagar): JsonResponse
+    {
+        $request->validate([
+            'data_pagamento' => 'nullable|date',
+        ]);
+
+        $transaction = $this->service->pay($contaPagar, $request->data_pagamento);
+
+        return response()->json([
+            'message'     => 'Conta paga com sucesso',
+            'data'        => $contaPagar->fresh()->load(['category', 'transaction']),
+            'transaction' => $transaction,
+        ]);
+    }
+
+    public function dashboard(): JsonResponse
+    {
+        $now   = Carbon::now();
+        $year  = $now->year;
+        $month = $now->month;
+
+        $base = ContaPagar::whereYear('data_vencimento', $year)
+                          ->whereMonth('data_vencimento', $month);
+
+        $totalPendente = (clone $base)->whereIn('status', ['pendente', 'vencido'])->sum('valor');
+        $totalPago     = (clone $base)->where('status', 'pago')->sum('valor');
+        $totalVencido  = (clone $base)->where('status', 'vencido')->sum('valor');
+        $countVencidas = (clone $base)->where('status', 'vencido')->count();
+
+        // Next 7-day upcoming
+        $aVencer = ContaPagar::with('category')
+            ->whereIn('status', ['pendente'])
+            ->whereBetween('data_vencimento', [Carbon::today(), Carbon::today()->addDays(7)])
+            ->orderBy('data_vencimento')
+            ->get();
+
+        return response()->json([
+            'total_pendente' => (float) $totalPendente,
+            'total_pago'     => (float) $totalPago,
+            'total_vencido'  => (float) $totalVencido,
+            'count_vencidas' => $countVencidas,
+            'a_vencer'       => $aVencer,
+        ]);
+    }
+}

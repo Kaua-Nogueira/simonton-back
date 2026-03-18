@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
-class Transaction extends Model
+class Transaction extends BaseModel
 {
     use HasFactory;
 
@@ -20,6 +20,7 @@ class Transaction extends Model
         'member_id',
         'category_id',
         'cost_center_id',
+        'society_id',
         'status',
         'suggestion_confidence',
         'parent_transaction_id',
@@ -28,6 +29,7 @@ class Transaction extends Model
         'balance_after',
         'reconciled_by',
         'reconciled_at',
+        'bank_transaction_id',
     ];
 
     protected $casts = [
@@ -53,6 +55,11 @@ class Transaction extends Model
         return $this->belongsTo(CostCenter::class);
     }
 
+    public function bankTransaction(): BelongsTo
+    {
+        return $this->belongsTo(BankTransaction::class, 'bank_transaction_id');
+    }
+
     public function parentTransaction(): BelongsTo
     {
         return $this->belongsTo(Transaction::class, 'parent_transaction_id');
@@ -66,6 +73,11 @@ class Transaction extends Model
     public function reconciledBy(): BelongsTo
     {
         return $this->belongsTo(User::class, 'reconciled_by');
+    }
+
+    public function society(): BelongsTo
+    {
+        return $this->belongsTo(Society::class);
     }
 
     public function scopePending($query)

@@ -43,7 +43,7 @@ class TreasuryController extends Controller
 
     public function show($id)
     {
-        $entry = \App\Models\TreasuryEntry::with(['cash', 'splits.member', 'user', 'confirmer'])->findOrFail($id);
+        $entry = \App\Models\TreasuryEntry::with(['cash', 'splits.member', 'splits.society', 'user', 'confirmer'])->findOrFail($id);
         // $this->authorize('view', $entry);
         return response()->json($entry);
     }
@@ -93,6 +93,7 @@ class TreasuryController extends Controller
 
         $validated = $request->validate([
             'member_id' => 'nullable|exists:members,id',
+            'society_id' => 'nullable|exists:societies,id',
             'amount' => 'required|numeric|min:0.01',
             'type' => 'required|in:tithe,offering,mission,other',
             'is_digital' => 'boolean',
@@ -101,7 +102,7 @@ class TreasuryController extends Controller
 
         $split = $entry->splits()->create($validated);
         
-        return response()->json($split, 201);
+        return response()->json($split->load(['member', 'society']), 201);
     }
 
     public function removeSplit($id, $splitId)
@@ -200,6 +201,7 @@ class TreasuryController extends Controller
                     'amount' => $split->amount,
                     'category_id' => $categoryId,
                     'cost_center_id' => $costCenterId,
+                    'society_id' => $split->society_id,
                     'member_id' => $split->member_id, // Important!
                     'status' => 'confirmed', // Already confirmed by Treasurer
                     'reconciled_by' => $request->user()->id,

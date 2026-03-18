@@ -33,13 +33,29 @@ class SocietyFinancialController extends Controller
             'amount' => 'required|numeric|min:0.01',
             'type' => 'required|in:income,expense',
             'date' => 'required|date',
-            'category' => 'nullable|string'
+            'category' => 'nullable|string',
+            'attachment' => 'nullable|file|max:2048'
         ]);
+
+        if ($request->hasFile('attachment')) {
+            $path = $request->file('attachment')->store('society_attachments', 'public');
+            $validated['attachment_path'] = $path;
+        }
 
         $validated['society_id'] = $societyId;
 
         $movement = SocietyFinancialMovement::create($validated);
         return response()->json($movement, 201);
+    }
+
+    public function confirmMovement($societyId, $movementId)
+    {
+        $movement = SocietyFinancialMovement::where('society_id', $societyId)
+            ->findOrFail($movementId);
+            
+        $movement->update(['is_confirmed' => true]);
+        
+        return response()->json($movement);
     }
 
     public function getDuesGrid($societyId, Request $request)

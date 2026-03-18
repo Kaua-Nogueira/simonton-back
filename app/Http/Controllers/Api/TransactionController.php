@@ -28,7 +28,7 @@ class TransactionController extends Controller
     {
         $this->authorize('viewAny', Transaction::class);
 
-        $query = Transaction::with(['member', 'category', 'costCenter', 'reconciledBy'])
+        $query = Transaction::with(['member', 'category', 'costCenter', 'reconciledBy', 'society'])
             ->whereNull('parent_transaction_id');
 
         if ($request->has('type')) {

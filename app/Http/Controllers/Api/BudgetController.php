@@ -6,8 +6,12 @@ use App\Http\Controllers\Controller;
 use App\Models\Budget;
 use App\Models\BudgetItem;
 use App\Models\BudgetMovement;
+use App\Models\ContaPagar;
+use App\Services\ContaPagarService;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 
 class BudgetController extends Controller
 {
@@ -120,16 +124,18 @@ class BudgetController extends Controller
             ->get()
             ->keyBy('category_id');
 
-        $items = $budget->items()->with('category')->get()->map(function ($item) use ($spending) {
-            $spent = $spending->get($item->category_id)?->spent ?? 0;
-            return [
-                'category' => $item->category->name,
-                'budgeted' => $item->current_amount,
-                'spent' => $spent,
-                'remaining' => $item->current_amount - $spent,
-                'percent' => $item->current_amount > 0 ? ($spent / $item->current_amount) * 100 : 0
-            ];
-        });
+        $items = $budget->items()->with('category')->get()
+            ->filter(fn($item) => $item->category !== null) // skip orphaned items
+            ->map(function ($item) use ($spending) {
+                $spent = $spending->get($item->category_id)?->spent ?? 0;
+                return [
+                    'category' => $item->category->name,
+                    'budgeted' => $item->current_amount,
+                    'spent'    => $spent,
+                    'remaining' => $item->current_amount - $spent,
+                    'percent'  => $item->current_amount > 0 ? ($spent / $item->current_amount) * 100 : 0
+                ];
+            })->values();
 
         return $items;
     }
@@ -192,5 +198,66 @@ class BudgetController extends Controller
         $tree = $buildTree(null);
 
         return response()->json($tree);
+    }
+
+    /**
+     * Generate monthly contas_pagar from a budget item.
+     * Splits the annual budget amount into monthly installments.
+     */
+    public function generateContasPagar(Request $request, Budget $budget, BudgetItem $budgetItem): \Illuminate\Http\JsonResponse
+    {
+        $data = $request->validate([
+            'dia_vencimento' => 'nullable|integer|between:1,31',
+            'data_inicio'    => 'nullable|date',
+            'meses'          => 'nullable|integer|min:1|max:24',
+        ]);
+
+        $budgetItem->load('category');
+
+        if (!$budgetItem->category) {
+            return response()->json(['message' => 'O item de orçamento não possui categoria válida.'], 422);
+        }
+
+        $meses       = $data['meses'] ?? 12;
+        $monthly     = round($budgetItem->current_amount / $meses, 2);
+        $dia         = $data['dia_vencimento'] ?? 5;
+        $dataInicio  = isset($data['data_inicio']) ? Carbon::parse($data['data_inicio']) : Carbon::create($budget->year, 1, 1);
+        $serieId     = Str::uuid()->toString();
+
+        // Check for existing series from this budget item
+        $existing = ContaPagar::where('budget_item_id', $budgetItem->id)->count();
+        if ($existing > 0) {
+            return response()->json([
+                'message' => "Já existem {$existing} contas geradas para este item de orçamento. Delete-as antes de gerar novamente.",
+            ], 422);
+        }
+
+        $created = [];
+        for ($i = 0; $i < $meses; $i++) {
+            $base = $dataInicio->copy()->addMonths($i);
+            $due  = $base->setDay(min($dia, $base->daysInMonth));
+
+            $created[] = ContaPagar::create([
+                'descricao'              => $budgetItem->category->name . ' — ' . $base->format('F Y'),
+                'valor'                  => $monthly,
+                'data_vencimento'        => $due->toDateString(),
+                'category_id'            => $budgetItem->category_id,
+                'budget_item_id'         => $budgetItem->id,
+                'status'                 => 'pendente',
+                'recorrente'             => false,
+                'serie_id'               => $serieId,
+                'gerado_automaticamente' => true,
+                'user_id'                => auth()->id(),
+            ]);
+        }
+
+        // Mark the budget item as recorrente_mensal
+        $budgetItem->update(['recorrente_mensal' => true]);
+
+        return response()->json([
+            'message'   => "{$meses} contas a pagar geradas com sucesso!",
+            'monthly'   => $monthly,
+            'generated' => count($created),
+        ]);
     }
 }

@@ -9,9 +9,16 @@ class SocietyActivity extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['society_id', 'title', 'date', 'time', 'type', 'description'];
+    protected $fillable = [
+        'society_id', 'title', 'date', 'time', 'type', 'description', 
+        'estimated_cost', 'estimated_revenue'
+    ];
 
-    protected $casts = ['date' => 'date'];
+    protected $casts = [
+        'date' => 'date',
+        'estimated_cost' => 'decimal:2',
+        'estimated_revenue' => 'decimal:2'
+    ];
 
     public function society()
     {

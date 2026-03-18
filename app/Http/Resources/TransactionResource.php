@@ -19,12 +19,15 @@ class TransactionResource extends JsonResource
             'status' => $this->status,
             'suggestionConfidence' => $this->suggestion_confidence,
             'hasHighConfidence' => $this->hasHighConfidence(),
+            'society_id' => $this->society_id,
             'balanceBefore' => $this->balance_before ? (float) $this->balance_before : null,
             'balanceAfter' => $this->balance_after ? (float) $this->balance_after : null,
+            'bank_transaction_id' => $this->bank_transaction_id,
             'reconciledAt' => $this->reconciled_at?->toISOString(),
             'member' => $this->whenLoaded('member', fn() => $this->member ? new MemberResource($this->member) : null),
             'category' => $this->whenLoaded('category', fn() => $this->category ? new CategoryResource($this->category) : null),
             'costCenter' => $this->whenLoaded('costCenter', fn() => $this->costCenter ? new CostCenterResource($this->costCenter) : null),
+            'society' => $this->whenLoaded('society', fn() => $this->society ? new SocietyResource($this->society) : null),
             'reconciledBy' => $this->whenLoaded('reconciledBy', fn() => $this->reconciledBy ? [
                 'id' => $this->reconciledBy->id,
                 'name' => $this->reconciledBy->name,
@@ -32,6 +35,9 @@ class TransactionResource extends JsonResource
             'splitTransactions' => $this->whenLoaded('splitTransactions', fn() => TransactionSplitResource::collection($this->splitTransactions)),
             'createdAt' => $this->created_at->toISOString(),
             'updatedAt' => $this->updated_at->toISOString(),
+            'created_at' => $this->created_at->toISOString(),
+            'updated_at' => $this->updated_at->toISOString(),
+            'reconciled_at' => $this->reconciled_at?->toISOString(),
         ];
     }
 }

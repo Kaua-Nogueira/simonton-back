@@ -63,6 +63,14 @@ class RemittanceController extends Controller
 
             $amount = $baseAmount * 0.10;
 
+            if ($amount <= 0) {
+                return response()->json([
+                    'message' => 'Nenhuma remessa necessária para este período (valor zerado).',
+                    'base_amount' => $baseAmount,
+                    'amount' => 0
+                ]);
+            }
+
             // Create Liability Transaction (Account Payable)
             // Assuming we have a category for "Remessa Conciliar" or we create a generic one?
             // For now, let's look for a category named "Remessas" or create one if needed?

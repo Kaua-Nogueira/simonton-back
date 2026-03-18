@@ -4,11 +4,12 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class TreasurySplit extends Model
+class TreasurySplit extends BaseModel
 {
     protected $fillable = [
         'entry_id',
         'member_id',
+        'society_id',
         'amount',
         'type',
         'is_digital',
@@ -28,5 +29,10 @@ class TreasurySplit extends Model
     public function member()
     {
         return $this->belongsTo(Member::class);
+    }
+
+    public function society()
+    {
+        return $this->belongsTo(Society::class);
     }
 }

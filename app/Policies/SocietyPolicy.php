@@ -15,14 +15,27 @@ class SocietyPolicy
         return null;
     }
 
+    protected function isLeader(User $user, Society $society): bool
+    {
+        if (!$user->member_id) return false;
+
+        return \App\Models\SocietyMandate::where('society_id', $society->id)
+            ->where('year', date('Y'))
+            ->where('status', 'active')
+            ->whereHas('roles', function($q) use ($user) {
+                $q->where('member_id', $user->member_id)
+                  ->where('role_type', 'board');
+            })->exists();
+    }
+
     public function viewAny(User $user): bool
     {
-        return $user->hasPermission('societies.index');
+        return $user->hasPermission('societies.index') || $user->member_id !== null;
     }
 
     public function view(User $user, Society $society): bool
     {
-        return $user->hasPermission('societies.show');
+        return $user->hasPermission('societies.show') || $this->isLeader($user, $society);
     }
 
     public function create(User $user): bool
@@ -32,7 +45,7 @@ class SocietyPolicy
 
     public function update(User $user, Society $society): bool
     {
-        return $user->hasPermission('societies.update');
+        return $user->hasPermission('societies.update') || $this->isLeader($user, $society);
     }
 
     public function delete(User $user, Society $society): bool

@@ -120,12 +120,33 @@ class AclSeeder extends Seeder
             'order' => 7
         ]);
 
-        Menu::create([
+        // Sociedades
+        $sociedades = Menu::create([
             'title' => 'Sociedades',
-            'url' => '/sociedades',
+            'url' => '#',
             'icon' => 'Users',
             'order' => 8
         ]);
+
+        // Basic menu items
+        $sociedades->children()->createMany([
+            ['title' => 'Relatório Geral', 'url' => '/sociedades/relatorio', 'icon' => 'BarChart3', 'order' => 1],
+        ]);
+
+        // Individual Society Menus (President/Specific Roles)
+        try {
+            $allSocieties = \App\Models\Society::all();
+            foreach ($allSocieties as $index => $society) {
+                $sociedades->children()->create([
+                    'title' => $society->abbreviation,
+                    'url' => '/sociedades/' . $society->id,
+                    'icon' => 'ChevronRight',
+                    'order' => $index + 2
+                ]);
+            }
+        } catch (\Exception $e) {
+            // Silently fail if table doesn't exist yet or other issues
+        }
 
         Menu::create([
             'title' => 'Cadastros',
@@ -175,7 +196,7 @@ class AclSeeder extends Seeder
             'Entradas' => 'transactions.index',
             'Saídas' => 'transactions.index',
             'Registro de Caixa' => 'cash-register.index',
-            'Plano de Contas' => 'transactions.index', // Fallback or specific if available
+            'Plano de Contas' => 'transactions.index',
             'Orçamentos' => 'finance.budgets.index',
             'Obrigações' => 'transactions.index',
             'Nova Conferência' => 'treasury.entries.store',
@@ -183,10 +204,10 @@ class AclSeeder extends Seeder
             'Tesouraria' => 'treasury.entries.confirm',
             'Patrimônio' => 'patrimony.assets.index',
             'Educação Cristã' => 'ebd.classes.index',
-            'Sociedades' => 'societies.index',
+            'Relatório Geral' => 'societies.index',
             'Controle de Acesso' => 'acl.roles.index',
             'Logs de Auditoria' => 'acl.logs.index',
-            'Configurações' => 'auth.user', // Minimal permission
+            'Configurações' => 'auth.user',
         ];
 
         foreach ($mappings as $title => $permName) {
@@ -198,5 +219,22 @@ class AclSeeder extends Seeder
                 }
             }
         }
+
+        // Map individual societies
+        try {
+            $allSocieties = \App\Models\Society::all();
+            foreach ($allSocieties as $society) {
+                $menu = Menu::where('title', $society->abbreviation)->first();
+                if ($menu) {
+                    // Check if specific permission exists, if not, create it
+                    $permName = 'societies.' . strtolower($society->abbreviation) . '.view';
+                    $perm = Permission::firstOrCreate(['name' => $permName], [
+                        'group' => 'Sociedades',
+                        'description' => 'Acesso à ' . $society->abbreviation
+                    ]);
+                    $menu->permissions()->sync([$perm->id]);
+                }
+            }
+        } catch (\Exception $e) {}
     }
 }

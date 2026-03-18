@@ -12,6 +12,10 @@ class DashboardController extends Controller
 {
     public function stats(): JsonResponse
     {
+        if (!auth()->user()->can('transactions.index') && !auth()->user()->hasRole('Admin')) {
+            return response()->json(['message' => 'Unauthorized dashboard access.'], 403);
+        }
+
         $currentMonth = now()->startOfMonth();
         $lastMonth = now()->subMonth()->startOfMonth();
 

@@ -40,25 +40,39 @@ class MenuController extends Controller
     protected function filterMenu($menu, $user)
     {
         // Check children first
-        if ($menu->children->count() > 0) {
             $filteredChildren = $menu->children->map(function($child) use ($user) {
                 return $this->filterMenu($child, $user);
-            })->filter();
+            })->filter()->values();
             
             $menu->setRelation('children', $filteredChildren);
-        }
 
         // If specific permissions are set, check them
         if ($menu->permissions->count() > 0) {
             $hasPermission = $menu->permissions->some(function($p) use ($user) {
-                return $user->hasPermission($p->name);
+                if ($user->hasPermission($p->name)) return true;
+
+                // Dynamic access for Society leaders
+                if (str_starts_with($p->name, 'societies.') && str_ends_with($p->name, '.view')) {
+                    $abbr = strtoupper(explode('.', $p->name)[1]);
+                    $society = \App\Models\Society::where('abbreviation', $abbr)->first();
+                    if ($society && $user->can('view', $society)) {
+                        return true;
+                    }
+                }
+                
+                return false;
             });
             
-            if (!$hasPermission) return null;
+            // If parent has permissions but they fail, still show it if it has visible children
+            if (!$hasPermission && $menu->children->count() === 0) {
+                return null;
+            }
         }
 
         // If no permissions set but has children, only show if at least one child is visible
-        if ($menu->permissions->count() === 0 && $menu->children->count() > 0) {
+        // (This is now partially redundant with the logic above but kept for clarity)
+        if ($menu->children->count() > 0) {
+            // Children were already filtered at the start of filterMenu
             if ($menu->children->count() === 0) return null;
         }
 
