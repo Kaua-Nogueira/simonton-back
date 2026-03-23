@@ -101,6 +101,10 @@ Route::middleware(['auth:sanctum', 'acl'])->group(function () {
     // Dashboard
     Route::get('/dashboard/stats', [DashboardController::class, 'stats'])->name('dashboard.stats');
 
+    // System Settings
+    Route::get('/church-configs', [\App\Http\Controllers\Api\ChurchConfigController::class, 'index'])->name('church-configs.index');
+    Route::post('/church-configs', [\App\Http\Controllers\Api\ChurchConfigController::class, 'update'])->name('church-configs.update');
+
     // EBD (Escola Dominical)
     Route::get('/ebd/classes', [EbdController::class, 'index'])->name('ebd.classes.index');
     Route::get('/ebd/classes/{class}', [EbdController::class, 'show'])->name('ebd.classes.show');
@@ -108,6 +112,7 @@ Route::middleware(['auth:sanctum', 'acl'])->group(function () {
 
     // Reports
     Route::get('/reports/dizimos', [\App\Http\Controllers\Api\DizimosReportController::class, 'report'])->name('reports.dizimos');
+    Route::get('/reports/church/balancete', [\App\Http\Controllers\Api\ChurchReportController::class, 'churchBalancete'])->name('reports.church.balancete');
     Route::get('/reports/{type}', [ReportController::class, 'show'])->name('reports.view');
 
     // Secretariat (Atas & Resoluções)
@@ -117,6 +122,7 @@ Route::middleware(['auth:sanctum', 'acl'])->group(function () {
 
     // Internal Societies
     Route::get('societies/relatorio', [\App\Http\Controllers\Api\SocietyController::class, 'globalReport'])->name('societies.report');
+    Route::get('societies/balancete', [\App\Http\Controllers\Api\SocietyReportController::class, 'societyBalancete'])->name('societies.balancete');
     Route::apiResource('societies', \App\Http\Controllers\Api\SocietyController::class);
     Route::apiResource('societies.members', \App\Http\Controllers\Api\SocietyMemberController::class);
     Route::apiResource('societies.mandates', \App\Http\Controllers\Api\SocietyMandateController::class);
@@ -139,9 +145,26 @@ Route::middleware(['auth:sanctum', 'acl'])->group(function () {
     Route::prefix('patrimony')
     ->as('patrimony.')
     ->group(function () {
-        Route::apiResource('locations', \App\Http\Controllers\Api\Patrimony\LocationController::class);
-        Route::apiResource('categories', \App\Http\Controllers\Api\Patrimony\CategoryController::class);
-        Route::apiResource('assets', \App\Http\Controllers\Api\Patrimony\AssetController::class);
+        // Dashboard
+        Route::get('dashboard', [\App\Http\Controllers\Api\PatrimonyController::class, 'dashboard'])->name('dashboard');
+        
+        // Locations
+        Route::get('locations', [\App\Http\Controllers\Api\PatrimonyController::class, 'locations'])->name('locations.index');
+        Route::post('locations', [\App\Http\Controllers\Api\PatrimonyController::class, 'storeLocation'])->name('locations.store');
+        Route::put('locations/{id}', [\App\Http\Controllers\Api\PatrimonyController::class, 'updateLocation'])->name('locations.update');
+        Route::delete('locations/{id}', [\App\Http\Controllers\Api\PatrimonyController::class, 'destroyLocation'])->name('locations.destroy');
+        
+        // Categories
+        Route::get('categories', [\App\Http\Controllers\Api\PatrimonyController::class, 'categories'])->name('categories.index');
+        Route::post('categories', [\App\Http\Controllers\Api\PatrimonyController::class, 'storeCategory'])->name('categories.store');
+        Route::put('categories/{id}', [\App\Http\Controllers\Api\PatrimonyController::class, 'updateCategory'])->name('categories.update');
+        Route::delete('categories/{id}', [\App\Http\Controllers\Api\PatrimonyController::class, 'destroyCategory'])->name('categories.destroy');
+        
+        // Assets (Patrimônio)
+        Route::post('assets/batch-dispose', [\App\Http\Controllers\Api\PatrimonyController::class, 'batchDispose'])->name('assets.batch-dispose');
+        Route::post('assets/{asset}/move', [\App\Http\Controllers\Api\PatrimonyController::class, 'move'])->name('assets.move');
+        Route::apiResource('assets', \App\Http\Controllers\Api\PatrimonyController::class);
+
         // Let's use custom routes for clarity since MaintenanceController handles both Requests and Schedules
         Route::get('maintenance/requests', [\App\Http\Controllers\Api\Patrimony\MaintenanceController::class, 'indexRequests'])->name('maintenance.requests.index');
         Route::post('maintenance/requests', [\App\Http\Controllers\Api\Patrimony\MaintenanceController::class, 'storeRequest'])->name('maintenance.requests.store');

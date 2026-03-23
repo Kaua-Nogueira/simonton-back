@@ -32,7 +32,7 @@ class AssetController extends Controller
             });
         }
 
-        return response()->json($query->orderBy('name')->paginate(20));
+        return response()->json($query->orderBy('name')->paginate($request->get('per_page', 20)));
     }
 
     public function store(Request $request)

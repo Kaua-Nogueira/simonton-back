@@ -59,4 +59,9 @@ class Member extends BaseModel
     {
         return $this->hasOne(User::class);
     }
+
+    public function loans(): HasMany
+    {
+        return $this->hasMany(AssetLoan::class, 'member_id');
+    }
 }

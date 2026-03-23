@@ -7,12 +7,16 @@ use App\Models\Transaction;
 use App\Models\Member;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
 
 class DashboardController extends Controller
 {
     public function stats(): JsonResponse
     {
-        if (!auth()->user()->can('transactions.index') && !auth()->user()->hasRole('Admin')) {
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
+
+        if (!$user || (!$user->hasPermission('transactions.index') && !$user->hasRole('Admin'))) {
             return response()->json(['message' => 'Unauthorized dashboard access.'], 403);
         }
 

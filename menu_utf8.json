@@ -1,0 +1,1529 @@
+﻿[
+    {
+        "id": 1,
+        "title": "Dashboard",
+        "url": "\/",
+        "icon": "LayoutDashboard",
+        "parent_id": null,
+        "order": 1,
+        "created_at": "2026-03-16T20:18:00.000000Z",
+        "updated_at": "2026-03-16T20:18:00.000000Z",
+        "children": [],
+        "roles": [],
+        "permissions": []
+    },
+    {
+        "id": 2,
+        "title": "Secretaria",
+        "url": "#",
+        "icon": "BookOpen",
+        "parent_id": null,
+        "order": 2,
+        "created_at": "2026-03-16T20:18:00.000000Z",
+        "updated_at": "2026-03-16T20:18:00.000000Z",
+        "children": [
+            {
+                "id": 3,
+                "title": "Membros",
+                "url": "\/membros",
+                "icon": "Users",
+                "parent_id": 2,
+                "order": 1,
+                "created_at": "2026-03-16T20:18:00.000000Z",
+                "updated_at": "2026-03-16T20:18:00.000000Z",
+                "roles": [],
+                "permissions": [
+                    {
+                        "id": 137,
+                        "name": "members.index",
+                        "group": "Secretaria (Membros)",
+                        "description": "Permiss\u00e3o para acessar a rota members.index (GET)",
+                        "created_at": "2026-01-05T19:25:37.000000Z",
+                        "updated_at": "2026-03-14T04:51:27.000000Z",
+                        "method": "GET",
+                        "display_name": "Secretaria (Membros): Visualizar Lista",
+                        "pivot": {
+                            "menu_id": 3,
+                            "permission_id": 137
+                        }
+                    }
+                ],
+                "children": []
+            },
+            {
+                "id": 4,
+                "title": "Atas e Reuni\u00f5es",
+                "url": "\/secretaria\/atas",
+                "icon": "ScrollText",
+                "parent_id": 2,
+                "order": 2,
+                "created_at": "2026-03-16T20:18:00.000000Z",
+                "updated_at": "2026-03-16T20:18:00.000000Z",
+                "roles": [],
+                "permissions": [
+                    {
+                        "id": 47,
+                        "name": "meetings.index",
+                        "group": "Secretaria (Atas\/Reuni\u00f5es)",
+                        "description": "Permiss\u00e3o para acessar a rota meetings.index (GET)",
+                        "created_at": "2026-01-05T19:01:04.000000Z",
+                        "updated_at": "2026-03-14T04:51:27.000000Z",
+                        "method": "GET",
+                        "display_name": "Secretaria (Atas\/Reuni\u00f5es): Visualizar Lista",
+                        "pivot": {
+                            "menu_id": 4,
+                            "permission_id": 47
+                        }
+                    }
+                ],
+                "children": []
+            },
+            {
+                "id": 5,
+                "title": "Resolu\u00e7\u00f5es",
+                "url": "\/secretaria\/resolucoes",
+                "icon": "CheckSquare",
+                "parent_id": 2,
+                "order": 3,
+                "created_at": "2026-03-16T20:18:00.000000Z",
+                "updated_at": "2026-03-16T20:18:00.000000Z",
+                "roles": [],
+                "permissions": [
+                    {
+                        "id": 53,
+                        "name": "resolutions.index",
+                        "group": "Secretaria (Resolu\u00e7\u00f5es)",
+                        "description": "Permiss\u00e3o para acessar a rota resolutions.index (GET)",
+                        "created_at": "2026-01-05T19:01:04.000000Z",
+                        "updated_at": "2026-03-14T04:51:27.000000Z",
+                        "method": "GET",
+                        "display_name": "Secretaria (Resolu\u00e7\u00f5es): Visualizar Lista",
+                        "pivot": {
+                            "menu_id": 5,
+                            "permission_id": 53
+                        }
+                    }
+                ],
+                "children": []
+            }
+        ],
+        "roles": [],
+        "permissions": []
+    },
+    {
+        "id": 6,
+        "title": "Financeiro",
+        "url": "#",
+        "icon": "DollarSign",
+        "parent_id": null,
+        "order": 3,
+        "created_at": "2026-03-16T20:18:00.000000Z",
+        "updated_at": "2026-03-16T20:18:00.000000Z",
+        "children": [
+            {
+                "id": 7,
+                "title": "Entradas",
+                "url": "\/entradas",
+                "icon": "TrendingUp",
+                "parent_id": 6,
+                "order": 1,
+                "created_at": "2026-03-16T20:18:00.000000Z",
+                "updated_at": "2026-03-16T20:18:00.000000Z",
+                "roles": [],
+                "permissions": [
+                    {
+                        "id": 130,
+                        "name": "transactions.index",
+                        "group": "Financeiro (Transa\u00e7\u00f5es)",
+                        "description": "Permiss\u00e3o para acessar a rota transactions.index (GET)",
+                        "created_at": "2026-01-05T19:25:37.000000Z",
+                        "updated_at": "2026-03-14T04:51:27.000000Z",
+                        "method": "GET",
+                        "display_name": "Financeiro (Transa\u00e7\u00f5es): Visualizar Lista",
+                        "pivot": {
+                            "menu_id": 7,
+                            "permission_id": 130
+                        }
+                    }
+                ],
+                "children": []
+            },
+            {
+                "id": 8,
+                "title": "Sa\u00eddas",
+                "url": "\/saidas",
+                "icon": "TrendingDown",
+                "parent_id": 6,
+                "order": 2,
+                "created_at": "2026-03-16T20:18:00.000000Z",
+                "updated_at": "2026-03-16T20:18:00.000000Z",
+                "roles": [],
+                "permissions": [
+                    {
+                        "id": 130,
+                        "name": "transactions.index",
+                        "group": "Financeiro (Transa\u00e7\u00f5es)",
+                        "description": "Permiss\u00e3o para acessar a rota transactions.index (GET)",
+                        "created_at": "2026-01-05T19:25:37.000000Z",
+                        "updated_at": "2026-03-14T04:51:27.000000Z",
+                        "method": "GET",
+                        "display_name": "Financeiro (Transa\u00e7\u00f5es): Visualizar Lista",
+                        "pivot": {
+                            "menu_id": 8,
+                            "permission_id": 130
+                        }
+                    }
+                ],
+                "children": []
+            },
+            {
+                "id": 9,
+                "title": "Registro de Caixa",
+                "url": "\/registro-caixa",
+                "icon": "Wallet",
+                "parent_id": 6,
+                "order": 3,
+                "created_at": "2026-03-16T20:18:00.000000Z",
+                "updated_at": "2026-03-16T20:18:00.000000Z",
+                "roles": [],
+                "permissions": [
+                    {
+                        "id": 149,
+                        "name": "cash-register.index",
+                        "group": "Financeiro (Registro de Caixa)",
+                        "description": "Permiss\u00e3o para acessar a rota cash-register.index (GET)",
+                        "created_at": "2026-01-05T19:25:37.000000Z",
+                        "updated_at": "2026-03-14T04:51:27.000000Z",
+                        "method": "GET",
+                        "display_name": "Financeiro (Registro de Caixa): Visualizar Lista",
+                        "pivot": {
+                            "menu_id": 9,
+                            "permission_id": 149
+                        }
+                    }
+                ],
+                "children": []
+            },
+            {
+                "id": 10,
+                "title": "Plano de Contas",
+                "url": "\/financeiro\/plano-de-contas",
+                "icon": "ListTree",
+                "parent_id": 6,
+                "order": 4,
+                "created_at": "2026-03-16T20:18:00.000000Z",
+                "updated_at": "2026-03-16T20:18:00.000000Z",
+                "roles": [],
+                "permissions": [
+                    {
+                        "id": 130,
+                        "name": "transactions.index",
+                        "group": "Financeiro (Transa\u00e7\u00f5es)",
+                        "description": "Permiss\u00e3o para acessar a rota transactions.index (GET)",
+                        "created_at": "2026-01-05T19:25:37.000000Z",
+                        "updated_at": "2026-03-14T04:51:27.000000Z",
+                        "method": "GET",
+                        "display_name": "Financeiro (Transa\u00e7\u00f5es): Visualizar Lista",
+                        "pivot": {
+                            "menu_id": 10,
+                            "permission_id": 130
+                        }
+                    }
+                ],
+                "children": []
+            },
+            {
+                "id": 11,
+                "title": "Or\u00e7amentos",
+                "url": "\/financeiro\/orcamento",
+                "icon": "BarChart3",
+                "parent_id": 6,
+                "order": 5,
+                "created_at": "2026-03-16T20:18:00.000000Z",
+                "updated_at": "2026-03-16T20:18:00.000000Z",
+                "roles": [],
+                "permissions": [
+                    {
+                        "id": 179,
+                        "name": "finance.budgets.index",
+                        "group": "Financeiro",
+                        "description": "Permiss\u00e3o para acessar a rota finance.budgets.index (GET)",
+                        "created_at": "2026-01-05T19:25:37.000000Z",
+                        "updated_at": "2026-03-18T12:40:02.000000Z",
+                        "method": "GET",
+                        "display_name": "Financeiro: Visualizar Lista",
+                        "pivot": {
+                            "menu_id": 11,
+                            "permission_id": 179
+                        }
+                    }
+                ],
+                "children": []
+            },
+            {
+                "id": 12,
+                "title": "Obriga\u00e7\u00f5es",
+                "url": "\/financeiro\/obrigacoes",
+                "icon": "Calendar",
+                "parent_id": 6,
+                "order": 6,
+                "created_at": "2026-03-16T20:18:00.000000Z",
+                "updated_at": "2026-03-16T20:18:00.000000Z",
+                "roles": [],
+                "permissions": [
+                    {
+                        "id": 130,
+                        "name": "transactions.index",
+                        "group": "Financeiro (Transa\u00e7\u00f5es)",
+                        "description": "Permiss\u00e3o para acessar a rota transactions.index (GET)",
+                        "created_at": "2026-01-05T19:25:37.000000Z",
+                        "updated_at": "2026-03-14T04:51:27.000000Z",
+                        "method": "GET",
+                        "display_name": "Financeiro (Transa\u00e7\u00f5es): Visualizar Lista",
+                        "pivot": {
+                            "menu_id": 12,
+                            "permission_id": 130
+                        }
+                    }
+                ],
+                "children": []
+            },
+            {
+                "id": 35,
+                "title": "Concilia\u00e7\u00e3o Banc\u00e1ria",
+                "url": "\/financeiro\/conciliacao",
+                "icon": "RefreshCw",
+                "parent_id": 6,
+                "order": 10,
+                "created_at": "2026-03-18T01:00:55.000000Z",
+                "updated_at": "2026-03-18T01:00:55.000000Z",
+                "roles": [],
+                "permissions": [],
+                "children": []
+            },
+            {
+                "id": 36,
+                "title": "Contas a Pagar",
+                "url": "\/financeiro\/contas-pagar",
+                "icon": "receipt",
+                "parent_id": 6,
+                "order": 11,
+                "created_at": "2026-03-18T12:45:44.000000Z",
+                "updated_at": "2026-03-18T12:45:44.000000Z",
+                "roles": [],
+                "permissions": [],
+                "children": []
+            }
+        ],
+        "roles": [],
+        "permissions": []
+    },
+    {
+        "id": 13,
+        "title": "Diaconia",
+        "url": "#",
+        "icon": "Receipt",
+        "parent_id": null,
+        "order": 4,
+        "created_at": "2026-03-16T20:18:00.000000Z",
+        "updated_at": "2026-03-16T20:18:00.000000Z",
+        "children": [
+            {
+                "id": 14,
+                "title": "Nova Confer\u00eancia",
+                "url": "\/diaconia\/conferencia\/nova",
+                "icon": "Plus",
+                "parent_id": 13,
+                "order": 1,
+                "created_at": "2026-03-16T20:18:00.000000Z",
+                "updated_at": "2026-03-16T20:18:00.000000Z",
+                "roles": [],
+                "permissions": [
+                    {
+                        "id": 211,
+                        "name": "treasury.entries.store",
+                        "group": "Tesouraria (Diaconia)",
+                        "description": "Permiss\u00e3o para acessar a rota treasury.entries.store (POST)",
+                        "created_at": "2026-01-09T17:29:22.000000Z",
+                        "updated_at": "2026-03-14T04:51:27.000000Z",
+                        "method": "POST",
+                        "display_name": "Tesouraria (Diaconia): Criar Novo",
+                        "pivot": {
+                            "menu_id": 14,
+                            "permission_id": 211
+                        }
+                    }
+                ],
+                "children": []
+            },
+            {
+                "id": 15,
+                "title": "Hist\u00f3rico",
+                "url": "\/diaconia",
+                "icon": "ScrollText",
+                "parent_id": 13,
+                "order": 2,
+                "created_at": "2026-03-16T20:18:00.000000Z",
+                "updated_at": "2026-03-16T20:18:00.000000Z",
+                "roles": [],
+                "permissions": [
+                    {
+                        "id": 210,
+                        "name": "treasury.entries.index",
+                        "group": "Tesouraria (Diaconia)",
+                        "description": "Permiss\u00e3o para acessar a rota treasury.entries.index (GET)",
+                        "created_at": "2026-01-09T17:29:22.000000Z",
+                        "updated_at": "2026-03-16T18:20:10.000000Z",
+                        "method": "GET",
+                        "display_name": "Tesouraria (Diaconia): Visualizar Lista",
+                        "pivot": {
+                            "menu_id": 15,
+                            "permission_id": 210
+                        }
+                    }
+                ],
+                "children": []
+            }
+        ],
+        "roles": [],
+        "permissions": []
+    },
+    {
+        "id": 16,
+        "title": "Tesouraria",
+        "url": "\/tesouraria",
+        "icon": "ShieldCheck",
+        "parent_id": null,
+        "order": 5,
+        "created_at": "2026-03-16T20:18:00.000000Z",
+        "updated_at": "2026-03-16T20:18:00.000000Z",
+        "children": [],
+        "roles": [],
+        "permissions": [
+            {
+                "id": 217,
+                "name": "treasury.entries.confirm",
+                "group": "Tesouraria (Diaconia)",
+                "description": "Permiss\u00e3o para acessar a rota treasury.entries.confirm (POST)",
+                "created_at": "2026-01-09T17:29:22.000000Z",
+                "updated_at": "2026-03-16T18:20:10.000000Z",
+                "method": "POST",
+                "display_name": "Tesouraria (Diaconia): Confirmar\/Aprovar",
+                "pivot": {
+                    "menu_id": 16,
+                    "permission_id": 217
+                }
+            }
+        ]
+    },
+    {
+        "id": 18,
+        "title": "Educa\u00e7\u00e3o Crist\u00e3",
+        "url": "\/ebd",
+        "icon": "BookOpen",
+        "parent_id": null,
+        "order": 7,
+        "created_at": "2026-03-16T20:18:00.000000Z",
+        "updated_at": "2026-03-16T20:18:00.000000Z",
+        "children": [],
+        "roles": [],
+        "permissions": [
+            {
+                "id": 152,
+                "name": "ebd.classes.index",
+                "group": "Educa\u00e7\u00e3o (EBD)",
+                "description": "Permiss\u00e3o para acessar a rota ebd.classes.index (GET)",
+                "created_at": "2026-01-05T19:25:37.000000Z",
+                "updated_at": "2026-03-14T04:51:27.000000Z",
+                "method": "GET",
+                "display_name": "Educa\u00e7\u00e3o (EBD): Visualizar Lista",
+                "pivot": {
+                    "menu_id": 18,
+                    "permission_id": 152
+                }
+            }
+        ]
+    },
+    {
+        "id": 19,
+        "title": "Sociedades",
+        "url": "#",
+        "icon": "Users",
+        "parent_id": null,
+        "order": 8,
+        "created_at": "2026-03-16T20:18:00.000000Z",
+        "updated_at": "2026-03-16T20:18:00.000000Z",
+        "children": [
+            {
+                "id": 20,
+                "title": "Relat\u00f3rio Geral",
+                "url": "\/sociedades\/relatorio",
+                "icon": "BarChart3",
+                "parent_id": 19,
+                "order": 1,
+                "created_at": "2026-03-16T20:18:00.000000Z",
+                "updated_at": "2026-03-16T20:18:00.000000Z",
+                "roles": [],
+                "permissions": [
+                    {
+                        "id": 58,
+                        "name": "societies.index",
+                        "group": "Sociedades Internas",
+                        "description": "Permiss\u00e3o para acessar a rota societies.index (GET)",
+                        "created_at": "2026-01-05T19:01:04.000000Z",
+                        "updated_at": "2026-03-14T04:51:27.000000Z",
+                        "method": "GET",
+                        "display_name": "Sociedades Internas: Visualizar Lista",
+                        "pivot": {
+                            "menu_id": 20,
+                            "permission_id": 58
+                        }
+                    }
+                ],
+                "children": []
+            },
+            {
+                "id": 21,
+                "title": "UPH",
+                "url": "\/sociedades\/1",
+                "icon": "ChevronRight",
+                "parent_id": 19,
+                "order": 2,
+                "created_at": "2026-03-16T20:18:00.000000Z",
+                "updated_at": "2026-03-16T20:18:00.000000Z",
+                "roles": [],
+                "permissions": [
+                    {
+                        "id": 239,
+                        "name": "societies.uph.view",
+                        "group": "Sociedades",
+                        "description": "Acesso \u00e0 UPH",
+                        "created_at": "2026-03-16T20:15:41.000000Z",
+                        "updated_at": "2026-03-16T20:15:41.000000Z",
+                        "method": null,
+                        "display_name": null,
+                        "pivot": {
+                            "menu_id": 21,
+                            "permission_id": 239
+                        }
+                    }
+                ],
+                "children": []
+            },
+            {
+                "id": 22,
+                "title": "UCP",
+                "url": "\/sociedades\/2",
+                "icon": "ChevronRight",
+                "parent_id": 19,
+                "order": 3,
+                "created_at": "2026-03-16T20:18:00.000000Z",
+                "updated_at": "2026-03-16T20:18:00.000000Z",
+                "roles": [],
+                "permissions": [
+                    {
+                        "id": 240,
+                        "name": "societies.ucp.view",
+                        "group": "Sociedades",
+                        "description": "Acesso \u00e0 UCP",
+                        "created_at": "2026-03-16T20:15:41.000000Z",
+                        "updated_at": "2026-03-16T20:15:41.000000Z",
+                        "method": null,
+                        "display_name": null,
+                        "pivot": {
+                            "menu_id": 22,
+                            "permission_id": 240
+                        }
+                    }
+                ],
+                "children": []
+            },
+            {
+                "id": 23,
+                "title": "UPA",
+                "url": "\/sociedades\/3",
+                "icon": "ChevronRight",
+                "parent_id": 19,
+                "order": 4,
+                "created_at": "2026-03-16T20:18:00.000000Z",
+                "updated_at": "2026-03-16T20:18:00.000000Z",
+                "roles": [],
+                "permissions": [
+                    {
+                        "id": 241,
+                        "name": "societies.upa.view",
+                        "group": "Sociedades",
+                        "description": "Acesso \u00e0 UPA",
+                        "created_at": "2026-03-16T20:15:41.000000Z",
+                        "updated_at": "2026-03-16T20:15:41.000000Z",
+                        "method": null,
+                        "display_name": null,
+                        "pivot": {
+                            "menu_id": 23,
+                            "permission_id": 241
+                        }
+                    }
+                ],
+                "children": []
+            },
+            {
+                "id": 24,
+                "title": "UMP",
+                "url": "\/sociedades\/4",
+                "icon": "ChevronRight",
+                "parent_id": 19,
+                "order": 5,
+                "created_at": "2026-03-16T20:18:00.000000Z",
+                "updated_at": "2026-03-16T20:18:00.000000Z",
+                "roles": [],
+                "permissions": [
+                    {
+                        "id": 242,
+                        "name": "societies.ump.view",
+                        "group": "Sociedades",
+                        "description": "Acesso \u00e0 UMP",
+                        "created_at": "2026-03-16T20:15:41.000000Z",
+                        "updated_at": "2026-03-16T20:15:41.000000Z",
+                        "method": null,
+                        "display_name": null,
+                        "pivot": {
+                            "menu_id": 24,
+                            "permission_id": 242
+                        }
+                    }
+                ],
+                "children": []
+            },
+            {
+                "id": 25,
+                "title": "SAF",
+                "url": "\/sociedades\/5",
+                "icon": "ChevronRight",
+                "parent_id": 19,
+                "order": 6,
+                "created_at": "2026-03-16T20:18:00.000000Z",
+                "updated_at": "2026-03-16T20:18:00.000000Z",
+                "roles": [],
+                "permissions": [
+                    {
+                        "id": 243,
+                        "name": "societies.saf.view",
+                        "group": "Sociedades",
+                        "description": "Acesso \u00e0 SAF",
+                        "created_at": "2026-03-16T20:15:41.000000Z",
+                        "updated_at": "2026-03-16T20:15:41.000000Z",
+                        "method": null,
+                        "display_name": null,
+                        "pivot": {
+                            "menu_id": 25,
+                            "permission_id": 243
+                        }
+                    }
+                ],
+                "children": []
+            }
+        ],
+        "roles": [],
+        "permissions": []
+    },
+    {
+        "id": 26,
+        "title": "Cadastros",
+        "url": "\/cadastros",
+        "icon": "PlusCircle",
+        "parent_id": null,
+        "order": 9,
+        "created_at": "2026-03-16T20:18:00.000000Z",
+        "updated_at": "2026-03-16T20:18:00.000000Z",
+        "children": [],
+        "roles": [],
+        "permissions": []
+    },
+    {
+        "id": 27,
+        "title": "Relat\u00f3rios",
+        "url": "#",
+        "icon": "BarChart3",
+        "parent_id": null,
+        "order": 10,
+        "created_at": "2026-03-16T20:18:00.000000Z",
+        "updated_at": "2026-03-16T20:18:00.000000Z",
+        "children": [
+            {
+                "id": 28,
+                "title": "Vis\u00e3o Geral",
+                "url": "\/relatorios",
+                "icon": "PieChart",
+                "parent_id": 27,
+                "order": 1,
+                "created_at": "2026-03-16T20:18:00.000000Z",
+                "updated_at": "2026-03-16T20:18:00.000000Z",
+                "roles": [],
+                "permissions": [],
+                "children": []
+            },
+            {
+                "id": 29,
+                "title": "D\u00edzimos e Ofertas",
+                "url": "\/financeiro\/relatorios\/dizimos",
+                "icon": "Heart",
+                "parent_id": 27,
+                "order": 2,
+                "created_at": "2026-03-16T20:18:00.000000Z",
+                "updated_at": "2026-03-16T20:18:00.000000Z",
+                "roles": [],
+                "permissions": [],
+                "children": []
+            },
+            {
+                "id": 30,
+                "title": "Relat\u00f3rio Mensal",
+                "url": "\/relatorios\/mensal",
+                "icon": "Calendar",
+                "parent_id": 27,
+                "order": 3,
+                "created_at": "2026-03-16T20:18:00.000000Z",
+                "updated_at": "2026-03-16T20:18:00.000000Z",
+                "roles": [],
+                "permissions": [],
+                "children": []
+            }
+        ],
+        "roles": [],
+        "permissions": []
+    },
+    {
+        "id": 31,
+        "title": "Administra\u00e7\u00e3o",
+        "url": "#",
+        "icon": "Settings",
+        "parent_id": null,
+        "order": 11,
+        "created_at": "2026-03-16T20:18:00.000000Z",
+        "updated_at": "2026-03-16T20:18:00.000000Z",
+        "children": [
+            {
+                "id": 32,
+                "title": "Controle de Acesso",
+                "url": "\/admin\/acl\/roles",
+                "icon": "Lock",
+                "parent_id": 31,
+                "order": 1,
+                "created_at": "2026-03-16T20:18:00.000000Z",
+                "updated_at": "2026-03-16T20:18:00.000000Z",
+                "roles": [],
+                "permissions": [
+                    {
+                        "id": 190,
+                        "name": "acl.roles.index",
+                        "group": "acl",
+                        "description": "Automatically generated permission for acl.roles.index",
+                        "created_at": "2026-01-05T19:25:37.000000Z",
+                        "updated_at": "2026-01-05T19:25:37.000000Z",
+                        "method": "GET",
+                        "display_name": null,
+                        "pivot": {
+                            "menu_id": 32,
+                            "permission_id": 190
+                        }
+                    }
+                ],
+                "children": []
+            },
+            {
+                "id": 33,
+                "title": "Logs de Auditoria",
+                "url": "\/admin\/acl\/logs",
+                "icon": "History",
+                "parent_id": 31,
+                "order": 2,
+                "created_at": "2026-03-16T20:18:00.000000Z",
+                "updated_at": "2026-03-16T20:18:00.000000Z",
+                "roles": [],
+                "permissions": [
+                    {
+                        "id": 209,
+                        "name": "acl.logs.index",
+                        "group": "acl",
+                        "description": "Automatically generated permission for acl.logs.index",
+                        "created_at": "2026-01-09T17:29:22.000000Z",
+                        "updated_at": "2026-01-09T17:29:22.000000Z",
+                        "method": "GET",
+                        "display_name": null,
+                        "pivot": {
+                            "menu_id": 33,
+                            "permission_id": 209
+                        }
+                    }
+                ],
+                "children": []
+            },
+            {
+                "id": 34,
+                "title": "Configura\u00e7\u00f5es",
+                "url": "\/configuracoes",
+                "icon": "Sliders",
+                "parent_id": 31,
+                "order": 3,
+                "created_at": "2026-03-16T20:18:00.000000Z",
+                "updated_at": "2026-03-16T20:18:00.000000Z",
+                "roles": [],
+                "permissions": [
+                    {
+                        "id": 128,
+                        "name": "auth.user",
+                        "group": "Auth",
+                        "description": "Permiss\u00e3o para acessar a rota auth.user (GET)",
+                        "created_at": "2026-01-05T19:25:37.000000Z",
+                        "updated_at": "2026-03-14T04:51:27.000000Z",
+                        "method": "GET",
+                        "display_name": "Auth: User",
+                        "pivot": {
+                            "menu_id": 34,
+                            "permission_id": 128
+                        }
+                    }
+                ],
+                "children": []
+            }
+        ],
+        "roles": [],
+        "permissions": []
+    },
+    {
+        "id": 37,
+        "title": "Patrim\u00f4nio",
+        "url": "\/patrimonio",
+        "icon": "PackageOpen",
+        "parent_id": null,
+        "order": 12,
+        "created_at": "2026-03-19T12:47:48.000000Z",
+        "updated_at": "2026-03-19T12:47:48.000000Z",
+        "children": [
+            {
+                "id": 38,
+                "title": "Resumo",
+                "url": "\/patrimonio",
+                "icon": "LayoutDashboard",
+                "parent_id": 37,
+                "order": 1,
+                "created_at": "2026-03-19T12:47:48.000000Z",
+                "updated_at": "2026-03-19T12:47:48.000000Z",
+                "roles": [
+                    {
+                        "id": 12,
+                        "name": "Tesoureiro",
+                        "type": "system",
+                        "description": "Acessa principalmente o financeiro e as rotas acess\u00f3rias",
+                        "created_at": "2026-01-05T19:27:33.000000Z",
+                        "updated_at": "2026-01-05T19:27:33.000000Z",
+                        "category": null,
+                        "pivot": {
+                            "menu_id": 38,
+                            "role_id": 12
+                        }
+                    },
+                    {
+                        "id": 13,
+                        "name": "Di\u00e1cono",
+                        "type": "system",
+                        "description": "Tem acesso \u00e0s ferramentas da diacon\u00eda",
+                        "created_at": "2026-01-05T21:52:13.000000Z",
+                        "updated_at": "2026-01-05T21:52:13.000000Z",
+                        "category": null,
+                        "pivot": {
+                            "menu_id": 38,
+                            "role_id": 13
+                        }
+                    },
+                    {
+                        "id": 14,
+                        "name": "Admin",
+                        "type": "system",
+                        "description": "Super Administrator with Full Access",
+                        "created_at": "2026-03-12T01:35:05.000000Z",
+                        "updated_at": "2026-03-12T01:35:05.000000Z",
+                        "category": null,
+                        "pivot": {
+                            "menu_id": 38,
+                            "role_id": 14
+                        }
+                    },
+                    {
+                        "id": 15,
+                        "name": "Tesoureiro (Sistema)",
+                        "type": "system",
+                        "description": "Gest\u00e3o financeira e diaconia",
+                        "created_at": "2026-03-14T04:53:01.000000Z",
+                        "updated_at": "2026-03-14T04:53:01.000000Z",
+                        "category": null,
+                        "pivot": {
+                            "menu_id": 38,
+                            "role_id": 15
+                        }
+                    },
+                    {
+                        "id": 16,
+                        "name": "Secret\u00e1rio (Sistema)",
+                        "type": "system",
+                        "description": "Gest\u00e3o de membros e atas",
+                        "created_at": "2026-03-14T04:53:01.000000Z",
+                        "updated_at": "2026-03-14T04:53:01.000000Z",
+                        "category": null,
+                        "pivot": {
+                            "menu_id": 38,
+                            "role_id": 16
+                        }
+                    },
+                    {
+                        "id": 17,
+                        "name": "Presb\u00edtero",
+                        "type": "office",
+                        "description": null,
+                        "created_at": "2026-03-16T14:15:16.000000Z",
+                        "updated_at": "2026-03-16T14:15:16.000000Z",
+                        "category": "Conselho (Governo)",
+                        "pivot": {
+                            "menu_id": 38,
+                            "role_id": 17
+                        }
+                    },
+                    {
+                        "id": 18,
+                        "name": "Usu\u00e1rio sem papel",
+                        "type": "function",
+                        "description": "usu\u00e1rio sem papel, esperando receber fun\u00e7\u00e3o de sociedade ou outro",
+                        "created_at": "2026-03-17T23:12:38.000000Z",
+                        "updated_at": "2026-03-17T23:12:38.000000Z",
+                        "category": "Administra\u00e7\u00e3o",
+                        "pivot": {
+                            "menu_id": 38,
+                            "role_id": 18
+                        }
+                    }
+                ],
+                "permissions": [],
+                "children": []
+            },
+            {
+                "id": 39,
+                "title": "Invent\u00e1rio",
+                "url": "\/patrimonio\/inventario",
+                "icon": "Box",
+                "parent_id": 37,
+                "order": 2,
+                "created_at": "2026-03-19T12:47:48.000000Z",
+                "updated_at": "2026-03-19T12:47:48.000000Z",
+                "roles": [
+                    {
+                        "id": 12,
+                        "name": "Tesoureiro",
+                        "type": "system",
+                        "description": "Acessa principalmente o financeiro e as rotas acess\u00f3rias",
+                        "created_at": "2026-01-05T19:27:33.000000Z",
+                        "updated_at": "2026-01-05T19:27:33.000000Z",
+                        "category": null,
+                        "pivot": {
+                            "menu_id": 39,
+                            "role_id": 12
+                        }
+                    },
+                    {
+                        "id": 13,
+                        "name": "Di\u00e1cono",
+                        "type": "system",
+                        "description": "Tem acesso \u00e0s ferramentas da diacon\u00eda",
+                        "created_at": "2026-01-05T21:52:13.000000Z",
+                        "updated_at": "2026-01-05T21:52:13.000000Z",
+                        "category": null,
+                        "pivot": {
+                            "menu_id": 39,
+                            "role_id": 13
+                        }
+                    },
+                    {
+                        "id": 14,
+                        "name": "Admin",
+                        "type": "system",
+                        "description": "Super Administrator with Full Access",
+                        "created_at": "2026-03-12T01:35:05.000000Z",
+                        "updated_at": "2026-03-12T01:35:05.000000Z",
+                        "category": null,
+                        "pivot": {
+                            "menu_id": 39,
+                            "role_id": 14
+                        }
+                    },
+                    {
+                        "id": 15,
+                        "name": "Tesoureiro (Sistema)",
+                        "type": "system",
+                        "description": "Gest\u00e3o financeira e diaconia",
+                        "created_at": "2026-03-14T04:53:01.000000Z",
+                        "updated_at": "2026-03-14T04:53:01.000000Z",
+                        "category": null,
+                        "pivot": {
+                            "menu_id": 39,
+                            "role_id": 15
+                        }
+                    },
+                    {
+                        "id": 16,
+                        "name": "Secret\u00e1rio (Sistema)",
+                        "type": "system",
+                        "description": "Gest\u00e3o de membros e atas",
+                        "created_at": "2026-03-14T04:53:01.000000Z",
+                        "updated_at": "2026-03-14T04:53:01.000000Z",
+                        "category": null,
+                        "pivot": {
+                            "menu_id": 39,
+                            "role_id": 16
+                        }
+                    },
+                    {
+                        "id": 17,
+                        "name": "Presb\u00edtero",
+                        "type": "office",
+                        "description": null,
+                        "created_at": "2026-03-16T14:15:16.000000Z",
+                        "updated_at": "2026-03-16T14:15:16.000000Z",
+                        "category": "Conselho (Governo)",
+                        "pivot": {
+                            "menu_id": 39,
+                            "role_id": 17
+                        }
+                    },
+                    {
+                        "id": 18,
+                        "name": "Usu\u00e1rio sem papel",
+                        "type": "function",
+                        "description": "usu\u00e1rio sem papel, esperando receber fun\u00e7\u00e3o de sociedade ou outro",
+                        "created_at": "2026-03-17T23:12:38.000000Z",
+                        "updated_at": "2026-03-17T23:12:38.000000Z",
+                        "category": "Administra\u00e7\u00e3o",
+                        "pivot": {
+                            "menu_id": 39,
+                            "role_id": 18
+                        }
+                    }
+                ],
+                "permissions": [],
+                "children": []
+            },
+            {
+                "id": 40,
+                "title": "Cadastros",
+                "url": "\/patrimonio\/cadastros",
+                "icon": "Settings",
+                "parent_id": 37,
+                "order": 3,
+                "created_at": "2026-03-19T12:47:48.000000Z",
+                "updated_at": "2026-03-19T12:47:48.000000Z",
+                "roles": [
+                    {
+                        "id": 12,
+                        "name": "Tesoureiro",
+                        "type": "system",
+                        "description": "Acessa principalmente o financeiro e as rotas acess\u00f3rias",
+                        "created_at": "2026-01-05T19:27:33.000000Z",
+                        "updated_at": "2026-01-05T19:27:33.000000Z",
+                        "category": null,
+                        "pivot": {
+                            "menu_id": 40,
+                            "role_id": 12
+                        }
+                    },
+                    {
+                        "id": 13,
+                        "name": "Di\u00e1cono",
+                        "type": "system",
+                        "description": "Tem acesso \u00e0s ferramentas da diacon\u00eda",
+                        "created_at": "2026-01-05T21:52:13.000000Z",
+                        "updated_at": "2026-01-05T21:52:13.000000Z",
+                        "category": null,
+                        "pivot": {
+                            "menu_id": 40,
+                            "role_id": 13
+                        }
+                    },
+                    {
+                        "id": 14,
+                        "name": "Admin",
+                        "type": "system",
+                        "description": "Super Administrator with Full Access",
+                        "created_at": "2026-03-12T01:35:05.000000Z",
+                        "updated_at": "2026-03-12T01:35:05.000000Z",
+                        "category": null,
+                        "pivot": {
+                            "menu_id": 40,
+                            "role_id": 14
+                        }
+                    },
+                    {
+                        "id": 15,
+                        "name": "Tesoureiro (Sistema)",
+                        "type": "system",
+                        "description": "Gest\u00e3o financeira e diaconia",
+                        "created_at": "2026-03-14T04:53:01.000000Z",
+                        "updated_at": "2026-03-14T04:53:01.000000Z",
+                        "category": null,
+                        "pivot": {
+                            "menu_id": 40,
+                            "role_id": 15
+                        }
+                    },
+                    {
+                        "id": 16,
+                        "name": "Secret\u00e1rio (Sistema)",
+                        "type": "system",
+                        "description": "Gest\u00e3o de membros e atas",
+                        "created_at": "2026-03-14T04:53:01.000000Z",
+                        "updated_at": "2026-03-14T04:53:01.000000Z",
+                        "category": null,
+                        "pivot": {
+                            "menu_id": 40,
+                            "role_id": 16
+                        }
+                    },
+                    {
+                        "id": 17,
+                        "name": "Presb\u00edtero",
+                        "type": "office",
+                        "description": null,
+                        "created_at": "2026-03-16T14:15:16.000000Z",
+                        "updated_at": "2026-03-16T14:15:16.000000Z",
+                        "category": "Conselho (Governo)",
+                        "pivot": {
+                            "menu_id": 40,
+                            "role_id": 17
+                        }
+                    },
+                    {
+                        "id": 18,
+                        "name": "Usu\u00e1rio sem papel",
+                        "type": "function",
+                        "description": "usu\u00e1rio sem papel, esperando receber fun\u00e7\u00e3o de sociedade ou outro",
+                        "created_at": "2026-03-17T23:12:38.000000Z",
+                        "updated_at": "2026-03-17T23:12:38.000000Z",
+                        "category": "Administra\u00e7\u00e3o",
+                        "pivot": {
+                            "menu_id": 40,
+                            "role_id": 18
+                        }
+                    }
+                ],
+                "permissions": [],
+                "children": []
+            },
+            {
+                "id": 41,
+                "title": "Manuten\u00e7\u00e3o",
+                "url": "\/patrimonio\/manutencao",
+                "icon": "Clock",
+                "parent_id": 37,
+                "order": 4,
+                "created_at": "2026-03-19T12:47:48.000000Z",
+                "updated_at": "2026-03-19T12:47:48.000000Z",
+                "roles": [
+                    {
+                        "id": 12,
+                        "name": "Tesoureiro",
+                        "type": "system",
+                        "description": "Acessa principalmente o financeiro e as rotas acess\u00f3rias",
+                        "created_at": "2026-01-05T19:27:33.000000Z",
+                        "updated_at": "2026-01-05T19:27:33.000000Z",
+                        "category": null,
+                        "pivot": {
+                            "menu_id": 41,
+                            "role_id": 12
+                        }
+                    },
+                    {
+                        "id": 13,
+                        "name": "Di\u00e1cono",
+                        "type": "system",
+                        "description": "Tem acesso \u00e0s ferramentas da diacon\u00eda",
+                        "created_at": "2026-01-05T21:52:13.000000Z",
+                        "updated_at": "2026-01-05T21:52:13.000000Z",
+                        "category": null,
+                        "pivot": {
+                            "menu_id": 41,
+                            "role_id": 13
+                        }
+                    },
+                    {
+                        "id": 14,
+                        "name": "Admin",
+                        "type": "system",
+                        "description": "Super Administrator with Full Access",
+                        "created_at": "2026-03-12T01:35:05.000000Z",
+                        "updated_at": "2026-03-12T01:35:05.000000Z",
+                        "category": null,
+                        "pivot": {
+                            "menu_id": 41,
+                            "role_id": 14
+                        }
+                    },
+                    {
+                        "id": 15,
+                        "name": "Tesoureiro (Sistema)",
+                        "type": "system",
+                        "description": "Gest\u00e3o financeira e diaconia",
+                        "created_at": "2026-03-14T04:53:01.000000Z",
+                        "updated_at": "2026-03-14T04:53:01.000000Z",
+                        "category": null,
+                        "pivot": {
+                            "menu_id": 41,
+                            "role_id": 15
+                        }
+                    },
+                    {
+                        "id": 16,
+                        "name": "Secret\u00e1rio (Sistema)",
+                        "type": "system",
+                        "description": "Gest\u00e3o de membros e atas",
+                        "created_at": "2026-03-14T04:53:01.000000Z",
+                        "updated_at": "2026-03-14T04:53:01.000000Z",
+                        "category": null,
+                        "pivot": {
+                            "menu_id": 41,
+                            "role_id": 16
+                        }
+                    },
+                    {
+                        "id": 17,
+                        "name": "Presb\u00edtero",
+                        "type": "office",
+                        "description": null,
+                        "created_at": "2026-03-16T14:15:16.000000Z",
+                        "updated_at": "2026-03-16T14:15:16.000000Z",
+                        "category": "Conselho (Governo)",
+                        "pivot": {
+                            "menu_id": 41,
+                            "role_id": 17
+                        }
+                    },
+                    {
+                        "id": 18,
+                        "name": "Usu\u00e1rio sem papel",
+                        "type": "function",
+                        "description": "usu\u00e1rio sem papel, esperando receber fun\u00e7\u00e3o de sociedade ou outro",
+                        "created_at": "2026-03-17T23:12:38.000000Z",
+                        "updated_at": "2026-03-17T23:12:38.000000Z",
+                        "category": "Administra\u00e7\u00e3o",
+                        "pivot": {
+                            "menu_id": 41,
+                            "role_id": 18
+                        }
+                    }
+                ],
+                "permissions": [],
+                "children": []
+            },
+            {
+                "id": 42,
+                "title": "Empr\u00e9stimos",
+                "url": "\/patrimonio\/emprestimos",
+                "icon": "History",
+                "parent_id": 37,
+                "order": 5,
+                "created_at": "2026-03-19T12:47:48.000000Z",
+                "updated_at": "2026-03-19T12:47:48.000000Z",
+                "roles": [
+                    {
+                        "id": 12,
+                        "name": "Tesoureiro",
+                        "type": "system",
+                        "description": "Acessa principalmente o financeiro e as rotas acess\u00f3rias",
+                        "created_at": "2026-01-05T19:27:33.000000Z",
+                        "updated_at": "2026-01-05T19:27:33.000000Z",
+                        "category": null,
+                        "pivot": {
+                            "menu_id": 42,
+                            "role_id": 12
+                        }
+                    },
+                    {
+                        "id": 13,
+                        "name": "Di\u00e1cono",
+                        "type": "system",
+                        "description": "Tem acesso \u00e0s ferramentas da diacon\u00eda",
+                        "created_at": "2026-01-05T21:52:13.000000Z",
+                        "updated_at": "2026-01-05T21:52:13.000000Z",
+                        "category": null,
+                        "pivot": {
+                            "menu_id": 42,
+                            "role_id": 13
+                        }
+                    },
+                    {
+                        "id": 14,
+                        "name": "Admin",
+                        "type": "system",
+                        "description": "Super Administrator with Full Access",
+                        "created_at": "2026-03-12T01:35:05.000000Z",
+                        "updated_at": "2026-03-12T01:35:05.000000Z",
+                        "category": null,
+                        "pivot": {
+                            "menu_id": 42,
+                            "role_id": 14
+                        }
+                    },
+                    {
+                        "id": 15,
+                        "name": "Tesoureiro (Sistema)",
+                        "type": "system",
+                        "description": "Gest\u00e3o financeira e diaconia",
+                        "created_at": "2026-03-14T04:53:01.000000Z",
+                        "updated_at": "2026-03-14T04:53:01.000000Z",
+                        "category": null,
+                        "pivot": {
+                            "menu_id": 42,
+                            "role_id": 15
+                        }
+                    },
+                    {
+                        "id": 16,
+                        "name": "Secret\u00e1rio (Sistema)",
+                        "type": "system",
+                        "description": "Gest\u00e3o de membros e atas",
+                        "created_at": "2026-03-14T04:53:01.000000Z",
+                        "updated_at": "2026-03-14T04:53:01.000000Z",
+                        "category": null,
+                        "pivot": {
+                            "menu_id": 42,
+                            "role_id": 16
+                        }
+                    },
+                    {
+                        "id": 17,
+                        "name": "Presb\u00edtero",
+                        "type": "office",
+                        "description": null,
+                        "created_at": "2026-03-16T14:15:16.000000Z",
+                        "updated_at": "2026-03-16T14:15:16.000000Z",
+                        "category": "Conselho (Governo)",
+                        "pivot": {
+                            "menu_id": 42,
+                            "role_id": 17
+                        }
+                    },
+                    {
+                        "id": 18,
+                        "name": "Usu\u00e1rio sem papel",
+                        "type": "function",
+                        "description": "usu\u00e1rio sem papel, esperando receber fun\u00e7\u00e3o de sociedade ou outro",
+                        "created_at": "2026-03-17T23:12:38.000000Z",
+                        "updated_at": "2026-03-17T23:12:38.000000Z",
+                        "category": "Administra\u00e7\u00e3o",
+                        "pivot": {
+                            "menu_id": 42,
+                            "role_id": 18
+                        }
+                    }
+                ],
+                "permissions": [],
+                "children": []
+            },
+            {
+                "id": 43,
+                "title": "Agenda \/ Espa\u00e7os",
+                "url": "\/patrimonio\/locais",
+                "icon": "BookOpen",
+                "parent_id": 37,
+                "order": 6,
+                "created_at": "2026-03-19T12:47:48.000000Z",
+                "updated_at": "2026-03-19T12:47:48.000000Z",
+                "roles": [
+                    {
+                        "id": 12,
+                        "name": "Tesoureiro",
+                        "type": "system",
+                        "description": "Acessa principalmente o financeiro e as rotas acess\u00f3rias",
+                        "created_at": "2026-01-05T19:27:33.000000Z",
+                        "updated_at": "2026-01-05T19:27:33.000000Z",
+                        "category": null,
+                        "pivot": {
+                            "menu_id": 43,
+                            "role_id": 12
+                        }
+                    },
+                    {
+                        "id": 13,
+                        "name": "Di\u00e1cono",
+                        "type": "system",
+                        "description": "Tem acesso \u00e0s ferramentas da diacon\u00eda",
+                        "created_at": "2026-01-05T21:52:13.000000Z",
+                        "updated_at": "2026-01-05T21:52:13.000000Z",
+                        "category": null,
+                        "pivot": {
+                            "menu_id": 43,
+                            "role_id": 13
+                        }
+                    },
+                    {
+                        "id": 14,
+                        "name": "Admin",
+                        "type": "system",
+                        "description": "Super Administrator with Full Access",
+                        "created_at": "2026-03-12T01:35:05.000000Z",
+                        "updated_at": "2026-03-12T01:35:05.000000Z",
+                        "category": null,
+                        "pivot": {
+                            "menu_id": 43,
+                            "role_id": 14
+                        }
+                    },
+                    {
+                        "id": 15,
+                        "name": "Tesoureiro (Sistema)",
+                        "type": "system",
+                        "description": "Gest\u00e3o financeira e diaconia",
+                        "created_at": "2026-03-14T04:53:01.000000Z",
+                        "updated_at": "2026-03-14T04:53:01.000000Z",
+                        "category": null,
+                        "pivot": {
+                            "menu_id": 43,
+                            "role_id": 15
+                        }
+                    },
+                    {
+                        "id": 16,
+                        "name": "Secret\u00e1rio (Sistema)",
+                        "type": "system",
+                        "description": "Gest\u00e3o de membros e atas",
+                        "created_at": "2026-03-14T04:53:01.000000Z",
+                        "updated_at": "2026-03-14T04:53:01.000000Z",
+                        "category": null,
+                        "pivot": {
+                            "menu_id": 43,
+                            "role_id": 16
+                        }
+                    },
+                    {
+                        "id": 17,
+                        "name": "Presb\u00edtero",
+                        "type": "office",
+                        "description": null,
+                        "created_at": "2026-03-16T14:15:16.000000Z",
+                        "updated_at": "2026-03-16T14:15:16.000000Z",
+                        "category": "Conselho (Governo)",
+                        "pivot": {
+                            "menu_id": 43,
+                            "role_id": 17
+                        }
+                    },
+                    {
+                        "id": 18,
+                        "name": "Usu\u00e1rio sem papel",
+                        "type": "function",
+                        "description": "usu\u00e1rio sem papel, esperando receber fun\u00e7\u00e3o de sociedade ou outro",
+                        "created_at": "2026-03-17T23:12:38.000000Z",
+                        "updated_at": "2026-03-17T23:12:38.000000Z",
+                        "category": "Administra\u00e7\u00e3o",
+                        "pivot": {
+                            "menu_id": 43,
+                            "role_id": 18
+                        }
+                    }
+                ],
+                "permissions": [],
+                "children": []
+            }
+        ],
+        "roles": [
+            {
+                "id": 12,
+                "name": "Tesoureiro",
+                "type": "system",
+                "description": "Acessa principalmente o financeiro e as rotas acess\u00f3rias",
+                "created_at": "2026-01-05T19:27:33.000000Z",
+                "updated_at": "2026-01-05T19:27:33.000000Z",
+                "category": null,
+                "pivot": {
+                    "menu_id": 37,
+                    "role_id": 12
+                }
+            },
+            {
+                "id": 13,
+                "name": "Di\u00e1cono",
+                "type": "system",
+                "description": "Tem acesso \u00e0s ferramentas da diacon\u00eda",
+                "created_at": "2026-01-05T21:52:13.000000Z",
+                "updated_at": "2026-01-05T21:52:13.000000Z",
+                "category": null,
+                "pivot": {
+                    "menu_id": 37,
+                    "role_id": 13
+                }
+            },
+            {
+                "id": 14,
+                "name": "Admin",
+                "type": "system",
+                "description": "Super Administrator with Full Access",
+                "created_at": "2026-03-12T01:35:05.000000Z",
+                "updated_at": "2026-03-12T01:35:05.000000Z",
+                "category": null,
+                "pivot": {
+                    "menu_id": 37,
+                    "role_id": 14
+                }
+            },
+            {
+                "id": 15,
+                "name": "Tesoureiro (Sistema)",
+                "type": "system",
+                "description": "Gest\u00e3o financeira e diaconia",
+                "created_at": "2026-03-14T04:53:01.000000Z",
+                "updated_at": "2026-03-14T04:53:01.000000Z",
+                "category": null,
+                "pivot": {
+                    "menu_id": 37,
+                    "role_id": 15
+                }
+            },
+            {
+                "id": 16,
+                "name": "Secret\u00e1rio (Sistema)",
+                "type": "system",
+                "description": "Gest\u00e3o de membros e atas",
+                "created_at": "2026-03-14T04:53:01.000000Z",
+                "updated_at": "2026-03-14T04:53:01.000000Z",
+                "category": null,
+                "pivot": {
+                    "menu_id": 37,
+                    "role_id": 16
+                }
+            },
+            {
+                "id": 17,
+                "name": "Presb\u00edtero",
+                "type": "office",
+                "description": null,
+                "created_at": "2026-03-16T14:15:16.000000Z",
+                "updated_at": "2026-03-16T14:15:16.000000Z",
+                "category": "Conselho (Governo)",
+                "pivot": {
+                    "menu_id": 37,
+                    "role_id": 17
+                }
+            },
+            {
+                "id": 18,
+                "name": "Usu\u00e1rio sem papel",
+                "type": "function",
+                "description": "usu\u00e1rio sem papel, esperando receber fun\u00e7\u00e3o de sociedade ou outro",
+                "created_at": "2026-03-17T23:12:38.000000Z",
+                "updated_at": "2026-03-17T23:12:38.000000Z",
+                "category": "Administra\u00e7\u00e3o",
+                "pivot": {
+                    "menu_id": 37,
+                    "role_id": 18
+                }
+            }
+        ],
+        "permissions": []
+    }
+]

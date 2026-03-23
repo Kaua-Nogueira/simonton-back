@@ -16,6 +16,10 @@ class ContaPagarController extends Controller
 
     public function index(Request $request): JsonResponse
     {
+        // Garante que o status de todas as contas esteja atualizado antes de listar
+        $this->service->checkAndMarkVencidas();
+        $this->service->generateNextMonthlyInstances();
+
         $query = ContaPagar::with(['category', 'costCenter', 'transaction'])
             ->orderBy('data_vencimento', 'asc');
 
@@ -146,21 +150,41 @@ class ContaPagarController extends Controller
 
     public function dashboard(): JsonResponse
     {
-        $now   = Carbon::now();
-        $year  = $now->year;
-        $month = $now->month;
+        // Atualiza status e gera próximas instâncias antes de calcular os totais
+        $this->service->checkAndMarkVencidas();
+        $this->service->generateNextMonthlyInstances();
 
-        $base = ContaPagar::whereYear('data_vencimento', $year)
-                          ->whereMonth('data_vencimento', $month);
+        $now = Carbon::now();
 
-        $totalPendente = (clone $base)->whereIn('status', ['pendente', 'vencido'])->sum('valor');
-        $totalPago     = (clone $base)->where('status', 'pago')->sum('valor');
-        $totalVencido  = (clone $base)->where('status', 'vencido')->sum('valor');
-        $countVencidas = (clone $base)->where('status', 'vencido')->count();
+        // 1. Total Pendente (Tudo que venceu no passado e ainda não foi pago + o que vence este mês)
+        $totalPendente = ContaPagar::whereIn('status', ['pendente', 'vencido'])
+            ->where('data_vencimento', '<=', $now->copy()->endOfMonth())
+            ->sum('valor');
 
-        // Next 7-day upcoming
+        // 2. Total Pago (Tudo que foi pago DENTRO deste mês atual, independente da data de vencimento)
+        // Isso reflete o fluxo de caixa real do mês
+        $totalPago = ContaPagar::where('status', 'pago')
+            ->whereHas('transaction', function ($q) use ($now) {
+                $q->whereYear('date', $now->year)
+                  ->whereMonth('date', $now->month);
+            })->sum('valor');
+            
+        // Fallback: se houver conta paga sem transação (backup), olhamos pela data de vencimento do mês
+        $totalPagoManual = ContaPagar::where('status', 'pago')
+            ->whereNull('transaction_id')
+            ->whereYear('data_vencimento', $now->year)
+            ->whereMonth('data_vencimento', $now->month)
+            ->sum('valor');
+        
+        $totalPago += $totalPagoManual;
+
+        // 3. Vencidas (Global)
+        $totalVencido = ContaPagar::where('status', 'vencido')->sum('valor');
+        $countVencidas = ContaPagar::where('status', 'vencido')->count();
+
+        // Próximos 7 dias
         $aVencer = ContaPagar::with('category')
-            ->whereIn('status', ['pendente'])
+            ->where('status', 'pendente')
             ->whereBetween('data_vencimento', [Carbon::today(), Carbon::today()->addDays(7)])
             ->orderBy('data_vencimento')
             ->get();
