@@ -5,7 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-class ContaPagar extends Model
+class ContaPagar extends BaseModel
 {
     protected $table = 'contas_pagar';
 

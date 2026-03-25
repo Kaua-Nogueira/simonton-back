@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\PatrimonyAsset;
 
-class AssetLoan extends Model
+class AssetLoan extends BaseModel
 {
     use HasFactory;
 

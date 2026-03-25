@@ -4,7 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class SundaySchoolClass extends Model
+class SundaySchoolClass extends BaseModel
 {
     protected $fillable = ['name', 'target_audience', 'location'];
 

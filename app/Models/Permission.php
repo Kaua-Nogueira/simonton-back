@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 use App\Models\Role;
 use App\Models\User;
 
-class Permission extends Model
+class Permission extends BaseModel
 {
     protected $fillable = ['name', 'display_name', 'group', 'description', 'method'];
 

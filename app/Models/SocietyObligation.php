@@ -5,7 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class SocietyObligation extends Model
+class SocietyObligation extends BaseModel
 {
     use HasFactory;
 

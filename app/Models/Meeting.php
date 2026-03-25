@@ -9,7 +9,7 @@ use App\Models\Resolution; // Added
 use App\Models\Document; // Added
 use App\Models\Member; // Added
 
-class Meeting extends Model
+class Meeting extends BaseModel
 {
     use HasFactory;
 

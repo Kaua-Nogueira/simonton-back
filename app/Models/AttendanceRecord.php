@@ -4,7 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class AttendanceRecord extends Model
+class AttendanceRecord extends BaseModel
 {
     protected $fillable = [
         'sunday_school_class_id',

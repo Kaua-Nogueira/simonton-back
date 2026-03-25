@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use App\Models\Meeting;
 use App\Models\Member;
 
-class Resolution extends Model
+class Resolution extends BaseModel
 {
     use HasFactory;
 

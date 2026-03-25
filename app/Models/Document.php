@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\Meeting;
 
-class Document extends Model
+class Document extends BaseModel
 {
     use HasFactory;
 

@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 use App\Models\Role;
 use App\Models\Permission;
 
-class Menu extends Model
+class Menu extends BaseModel
 {
     protected $fillable = ['title', 'url', 'icon', 'parent_id', 'order'];
 

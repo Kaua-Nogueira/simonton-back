@@ -4,7 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class ClassEnrollment extends Model
+class ClassEnrollment extends BaseModel
 {
     protected $fillable = ['sunday_school_class_id', 'member_id', 'role', 'year'];
 
