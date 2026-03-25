@@ -114,6 +114,11 @@ class User extends Authenticatable
             return $this->permissionCache;
         }
 
+        if ($this->isSuperAdmin()) {
+            $this->permissionCache = Permission::all();
+            return $this->permissionCache;
+        }
+
         // Get direct permissions
         $permissions = $this->permissions()->get();
         
