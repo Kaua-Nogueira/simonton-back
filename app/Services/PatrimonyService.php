@@ -16,13 +16,14 @@ class PatrimonyService
     public function createAsset(array $data): PatrimonyAsset
     {
         return DB::transaction(function () use ($data) {
-            $category = PatrimonyCategory::where('id', $data['category_id'])->lockForUpdate()->firstOrFail();
+            $location = \App\Models\PatrimonyLocation::where('id', $data['location_id'])->lockForUpdate()->firstOrFail();
             
             // Increment counter
-            $category->increment('last_counter');
+            $location->increment('last_counter');
             
-            // Generate tombo string (e.g., CAD-0001)
-            $tombo = sprintf('%s-%04d', $category->prefix, $category->last_counter);
+            // Generate tombo string based on Location (e.g., TPL-0001)
+            $prefix = $location->prefix ?? 'PTR'; // Default prefix if none set
+            $tombo = sprintf('%s-%04d', $prefix, $location->last_counter);
             
             $data['tombo'] = $tombo;
             $data['user_id'] = Auth::id();

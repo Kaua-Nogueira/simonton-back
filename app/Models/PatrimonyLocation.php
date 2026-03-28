@@ -10,7 +10,7 @@ class PatrimonyLocation extends BaseModel
 {
     use HasFactory;
 
-    protected $fillable = ['name'];
+    protected $fillable = ['name', 'description', 'prefix', 'last_counter', 'capacity', 'is_bookable'];
 
     public function assets(): HasMany
     {

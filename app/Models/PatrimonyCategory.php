@@ -10,7 +10,7 @@ class PatrimonyCategory extends BaseModel
 {
     use HasFactory;
 
-    protected $fillable = ['name', 'prefix', 'last_counter'];
+    protected $fillable = ['name'];
 
     public function assets(): HasMany
     {

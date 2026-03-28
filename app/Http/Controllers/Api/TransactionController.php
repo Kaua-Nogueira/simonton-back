@@ -66,25 +66,15 @@ class TransactionController extends Controller
         try {
             $data = $request->validated();
 
-            // Force pending status if category or cost center is missing
-            if (empty($data['category_id']) || empty($data['cost_center_id'])) {
+            // Force pending status if category is missing (cost center is now optional)
+            if (empty($data['category_id'])) {
                 $data['status'] = 'pending';
             }
 
             $transaction = Transaction::create($data);
 
             if ($transaction->status === 'pending') {
-                $suggestions = $this->suggestionService->suggestMemberAndCategory($transaction);
-                
-                if ($suggestions['confidence'] > 0) {
-                    $transaction->update([
-                        'member_id' => $suggestions['member_id'],
-                        'category_id' => $suggestions['category_id'],
-                        'cost_center_id' => $suggestions['cost_center_id'],
-                        'status' => 'suggested',
-                        'suggestion_confidence' => $suggestions['confidence'],
-                    ]);
-                }
+                $this->handleSuggestion($transaction);
             }
 
             $this->auditService->log($transaction, 'created');
@@ -95,9 +85,50 @@ class TransactionController extends Controller
             ], 201);
         } catch (\Throwable $e) {
             \Illuminate\Support\Facades\Log::error('Store Transaction Error: ' . $e->getMessage());
-            \Illuminate\Support\Facades\Log::error($e->getTraceAsString());
-            file_put_contents(storage_path('logs/debug_error.log'), $e->getMessage() . "\n" . $e->getTraceAsString());
             return response()->json(['error' => $e->getMessage()], 500);
+        }
+    }
+
+    private function handleSuggestion(Transaction $transaction): void
+    {
+        $suggestions = $this->suggestionService->suggestMemberAndCategory($transaction);
+        
+        if ($suggestions['confidence'] > 0) {
+            $updateData = [];
+
+            // Only suggest if the field is currently null (preserve manual user input)
+            if (!$transaction->member_id && $suggestions['member_id']) {
+                $updateData['member_id'] = $suggestions['member_id'];
+            }
+            if (!$transaction->category_id && $suggestions['category_id']) {
+                $updateData['category_id'] = $suggestions['category_id'];
+            }
+            if (!$transaction->cost_center_id && $suggestions['cost_center_id']) {
+                $updateData['cost_center_id'] = $suggestions['cost_center_id'];
+            }
+
+            if (!empty($updateData)) {
+                $updateData['suggestion_confidence'] = $suggestions['confidence'];
+                $updateData['status'] = 'suggested';
+
+                // AUTO-CONFIRM if confidence is extremely high (User request: don't require post-info)
+                if ($suggestions['confidence'] >= 95) {
+                    $updateData['status'] = 'confirmed';
+                    $updateData['reconciled_by'] = auth()->id() ?? 1; // System or Current User
+                    $updateData['reconciled_at'] = now();
+                }
+
+                $transaction->update($updateData);
+            }
+
+            if ($transaction->status === 'confirmed') {
+                $this->balanceService->recalculateFromDate($transaction->date);
+                $this->auditService->logReconciliation($transaction, [
+                    'old' => ['status' => 'pending'],
+                    'new' => $transaction->only(['member_id', 'category_id', 'cost_center_id', 'status']),
+                    'auto' => true
+                ]);
+            }
         }
     }
 
@@ -193,7 +224,7 @@ class TransactionController extends Controller
         $transactions = [];
         $duplicates = 0;
 
-        DB::transaction(function () use ($request, &$transactions, &$duplicates) { // Passed by ref
+        DB::transaction(function () use ($request, &$transactions, &$duplicates) {
             $file = $request->file('file');
             $service = new OFXImportService();
             $importedTransactions = $service->import($file);
@@ -211,17 +242,7 @@ class TransactionController extends Controller
 
                 $transaction = Transaction::create($importedTransaction);
 
-                $suggestions = $this->suggestionService->suggestMemberAndCategory($transaction);
-                
-                if ($suggestions['confidence'] > 0) {
-                    $transaction->update([
-                        'member_id' => $suggestions['member_id'],
-                        'category_id' => $suggestions['category_id'],
-                        'cost_center_id' => $suggestions['cost_center_id'],
-                        'status' => 'suggested',
-                        'suggestion_confidence' => $suggestions['confidence'],
-                    ]);
-                }
+                $this->handleSuggestion($transaction);
 
                 $this->auditService->log($transaction, 'imported');
                 $transactions[] = $transaction;
@@ -233,6 +254,25 @@ class TransactionController extends Controller
             'imported' => count($transactions),
             'duplicates' => $duplicates,
             'data' => TransactionResource::collection($transactions),
+        ]);
+    }
+
+    public function destroy(Transaction $transaction): JsonResponse
+    {
+        $this->authorize('delete', $transaction);
+
+        DB::transaction(function () use ($transaction) {
+            $date = $transaction->date;
+            
+            $this->auditService->log($transaction, 'deleted');
+            
+            $transaction->delete();
+            
+            $this->balanceService->recalculateFromDate($date);
+        });
+
+        return response()->json([
+            'message' => 'Lançamento excluído com sucesso.',
         ]);
     }
 

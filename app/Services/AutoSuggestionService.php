@@ -77,23 +77,29 @@ class AutoSuggestionService
     private function matchCategoryByDescription(string $description): ?array
     {
         $patterns = [
-            'dizimo' => ['keywords' => ['dizimo', 'dízimo'], 'confidence' => 85],
-            'oferta' => ['keywords' => ['oferta'], 'confidence' => 85],
-            'energia' => ['keywords' => ['energia', 'eletric', 'light'], 'confidence' => 80],
-            'agua' => ['keywords' => ['agua', 'água', 'saneamento'], 'confidence' => 80],
-            'salario' => ['keywords' => ['salario', 'salário', 'pagamento'], 'confidence' => 75],
+            'dizimo' => ['keywords' => ['dizimo', 'dízimo'], 'confidence' => 95, 'category_name' => 'Dízimo'],
+            'oferta' => ['keywords' => ['oferta'], 'confidence' => 95, 'category_name' => 'Oferta'],
+            'energia' => ['keywords' => ['energia', 'eletric', 'light', 'cpfl', 'enel'], 'confidence' => 90, 'category_name' => 'Energia'],
+            'agua' => ['keywords' => ['agua', 'água', 'saneamento', 'sabesp'], 'confidence' => 90, 'category_name' => 'Água'],
         ];
 
         $descriptionLower = Str::lower($description);
 
-        foreach ($patterns as $categorySlug => $pattern) {
+        foreach ($patterns as $pattern) {
             foreach ($pattern['keywords'] as $keyword) {
                 if (Str::contains($descriptionLower, $keyword)) {
-                    // In real implementation, fetch category by slug/name
-                    return [
-                        'category_id' => null, // Would lookup by slug
-                        'confidence' => $pattern['confidence'],
-                    ];
+                    $category = \App\Models\Category::where('name', 'like', '%' . $pattern['category_name'] . '%')->first();
+                    
+                    if ($category) {
+                        // Default cost center (Geral) if not specified
+                        $costCenter = \App\Models\CostCenter::where('name', 'like', '%Geral%')->first();
+                        
+                        return [
+                            'category_id' => $category->id,
+                            'cost_center_id' => $costCenter?->id,
+                            'confidence' => $pattern['confidence'],
+                        ];
+                    }
                 }
             }
         }

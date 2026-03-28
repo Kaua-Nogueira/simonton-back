@@ -79,10 +79,12 @@ class AclSeeder extends Seeder
         $financeiro->children()->createMany([
             ['title' => 'Entradas', 'url' => '/entradas', 'icon' => 'TrendingUp', 'order' => 1],
             ['title' => 'Saídas', 'url' => '/saidas', 'icon' => 'TrendingDown', 'order' => 2],
-            ['title' => 'Registro de Caixa', 'url' => '/registro-caixa', 'icon' => 'Wallet', 'order' => 3],
-            ['title' => 'Plano de Contas', 'url' => '/financeiro/plano-de-contas', 'icon' => 'ListTree', 'order' => 4],
-            ['title' => 'Orçamentos', 'url' => '/financeiro/orcamento', 'icon' => 'BarChart3', 'order' => 5],
-            ['title' => 'Obrigações', 'url' => '/financeiro/obrigacoes', 'icon' => 'Calendar', 'order' => 6],
+            ['title' => 'Contas a Pagar', 'url' => '/financeiro/contas-pagar', 'icon' => 'Receipt', 'order' => 3], // Adicionado
+            ['title' => 'Conciliação Bancária', 'url' => '/financeiro/conciliacao', 'icon' => 'RefreshCw', 'order' => 4], // Adicionado
+            ['title' => 'Registro de Caixa', 'url' => '/registro-caixa', 'icon' => 'Wallet', 'order' => 5],
+            ['title' => 'Plano de Contas', 'url' => '/financeiro/plano-de-contas', 'icon' => 'ListTree', 'order' => 6],
+            ['title' => 'Orçamentos', 'url' => '/financeiro/orcamento', 'icon' => 'BarChart3', 'order' => 7],
+            ['title' => 'Obrigações', 'url' => '/financeiro/obrigacoes', 'icon' => 'Calendar', 'order' => 8],
         ]);
 
         // Diaconia
@@ -106,18 +108,34 @@ class AclSeeder extends Seeder
             'order' => 5
         ]);
 
-        Menu::create([
+        // Patrimônio
+        $patrimonio = Menu::create([
             'title' => 'Patrimônio',
-            'url' => '/patrimonio',
+            'url' => '#',
             'icon' => 'Archive',
             'order' => 6
         ]);
 
-        Menu::create([
+        $patrimonio->children()->createMany([
+            ['title' => 'Bens (Ativos)', 'url' => '/patrimonio', 'icon' => 'PackageOpen', 'order' => 1],
+            ['title' => 'Inventário', 'url' => '/patrimonio/inventario', 'icon' => 'ClipboardList', 'order' => 2],
+            ['title' => 'Locais', 'url' => '/patrimonio/locais', 'icon' => 'MapPin', 'order' => 3],
+            ['title' => 'Categorias', 'url' => '/patrimonio/cadastros', 'icon' => 'Tags', 'order' => 4],
+            ['title' => 'Manutenções', 'url' => '/patrimonio/manutencao', 'icon' => 'Wrench', 'order' => 5],
+            ['title' => 'Empréstimos', 'url' => '/patrimonio/emprestimos', 'icon' => 'ArrowLeftRight', 'order' => 6],
+        ]);
+
+        // Educação Cristã
+        $ebd = Menu::create([
             'title' => 'Educação Cristã',
-            'url' => '/ebd',
+            'url' => '#',
             'icon' => 'BookOpen',
             'order' => 7
+        ]);
+
+        $ebd->children()->createMany([
+            ['title' => 'Classes', 'url' => '/ebd', 'icon' => 'Users', 'order' => 1],
+            ['title' => 'Relatórios EBD', 'url' => '/ebd/relatorios', 'icon' => 'BarChart3', 'order' => 2],
         ]);
 
         // Sociedades
@@ -195,6 +213,8 @@ class AclSeeder extends Seeder
             'Resoluções' => 'resolutions.index',
             'Entradas' => 'transactions.index',
             'Saídas' => 'transactions.index',
+            'Contas a Pagar' => 'finance.contas-pagar.index',
+            'Conciliação Bancária' => 'reconciliation.pending',
             'Registro de Caixa' => 'cash-register.index',
             'Plano de Contas' => 'transactions.index',
             'Orçamentos' => 'finance.budgets.index',
@@ -202,8 +222,14 @@ class AclSeeder extends Seeder
             'Nova Conferência' => 'treasury.entries.store',
             'Histórico' => 'treasury.entries.index',
             'Tesouraria' => 'treasury.entries.confirm',
-            'Patrimônio' => 'patrimony.assets.index',
-            'Educação Cristã' => 'ebd.classes.index',
+            'Bens (Ativos)' => 'patrimony.assets.index',
+            'Inventário' => 'patrimony.consumables.index',
+            'Locais' => 'patrimony.locations.index',
+            'Categorias' => 'patrimony.categories.index',
+            'Manutenções' => 'patrimony.maintenance.requests.index',
+            'Empréstimos' => 'patrimony.loans.index',
+            'Classes' => 'ebd.classes.index',
+            'Relatórios EBD' => 'ebd.classes.index',
             'Relatório Geral' => 'societies.index',
             'Controle de Acesso' => 'acl.roles.index',
             'Logs de Auditoria' => 'acl.logs.index',

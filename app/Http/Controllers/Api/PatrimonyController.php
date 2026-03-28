@@ -196,7 +196,6 @@ class PatrimonyController extends Controller
     {
         $validated = $request->validate([
             'name' => 'required|string|max:255',
-            'prefix' => 'required|string|max:10|unique:patrimony_categories,prefix',
         ]);
 
         $category = PatrimonyCategory::create($validated);
@@ -211,7 +210,6 @@ class PatrimonyController extends Controller
         $category = PatrimonyCategory::findOrFail($id);
         $validated = $request->validate([
             'name' => 'required|string|max:255',
-            'prefix' => 'required|string|max:10|unique:patrimony_categories,prefix,' . $id,
         ]);
 
         $category->update($validated);
@@ -251,6 +249,10 @@ class PatrimonyController extends Controller
     {
         $validated = $request->validate([
             'name' => 'required|string|max:255',
+            'prefix' => 'required|string|max:10|unique:patrimony_locations,prefix',
+            'description' => 'nullable|string',
+            'capacity' => 'nullable|integer',
+            'is_bookable' => 'boolean',
         ]);
 
         $location = PatrimonyLocation::create($validated);
@@ -264,7 +266,11 @@ class PatrimonyController extends Controller
     {
         $location = PatrimonyLocation::findOrFail($id);
         $validated = $request->validate([
-            'name' => 'required|string|max:255',
+            'name' => 'string|max:255',
+            'prefix' => 'string|max:10|unique:patrimony_locations,prefix,' . $id,
+            'description' => 'nullable|string',
+            'capacity' => 'nullable|integer',
+            'is_bookable' => 'boolean',
         ]);
 
         $location->update($validated);

@@ -94,6 +94,10 @@ class User extends Authenticatable
      */
     public function isSuperAdmin(): bool
     {
+        if ($this->role === 'admin') {
+            return true;
+        }
+
         // Use relationLoaded to avoid triggering lazy loading exception if preventLazyLoading is on
         $roles = $this->relationLoaded('roles') ? $this->roles : $this->roles()->get();
         return $roles->contains(function ($role) {

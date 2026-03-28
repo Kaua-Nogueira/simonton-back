@@ -25,7 +25,7 @@ class OFXImportService
                     'date' => $this->parseOFXDate($date),
                     'payment_method' => $this->detectPaymentMethod($description),
                     'status' => 'pending',
-                    'ofx_data' => $match,
+                    'fit_id' => $this->extractTag($match, 'FITID') ?? md5($match), // Fallback to hash of node
                 ];
             }
         }

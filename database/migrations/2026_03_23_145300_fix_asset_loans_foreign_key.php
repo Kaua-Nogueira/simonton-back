@@ -16,7 +16,9 @@ return new class extends Migration
         // But for common usage in Laravel migrations:
         
         // 1. Rename existing table
-        Schema::rename('asset_loans', 'asset_loans_old');
+        if (Schema::hasTable('asset_loans')) {
+            Schema::rename('asset_loans', 'asset_loans_old');
+        }
 
         // 2. Create new table with correct FK
         Schema::create('asset_loans', function (Blueprint $table) {

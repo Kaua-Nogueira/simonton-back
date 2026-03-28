@@ -66,6 +66,7 @@ Route::middleware(['auth:sanctum', 'acl'])->group(function () {
         Route::post('/transactions', [TransactionController::class, 'store'])->name('store');
         Route::post('/transactions/{transaction}/confirm', [TransactionController::class, 'confirm'])->name('confirm');
         Route::post('/transactions/{transaction}/split', [TransactionController::class, 'split'])->name('split');
+        Route::delete('/transactions/{transaction}', [TransactionController::class, 'destroy'])->name('destroy');
         Route::post('/transactions/import', [TransactionController::class, 'importOFX'])->name('import');
     });
 
@@ -209,9 +210,13 @@ Route::middleware(['auth:sanctum', 'acl'])->group(function () {
     Route::prefix('reconciliation')->as('reconciliation.')->group(function () {
         Route::post('import', [\App\Http\Controllers\Api\BankReconciliationController::class, 'import'])->name('import');
         Route::get('pending', [\App\Http\Controllers\Api\BankReconciliationController::class, 'pending'])->name('pending');
+        Route::get('history', [\App\Http\Controllers\Api\BankReconciliationController::class, 'history'])->name('history');
         Route::post('match', [\App\Http\Controllers\Api\BankReconciliationController::class, 'match'])->name('match');
+        Route::post('bulk-match', [\App\Http\Controllers\Api\BankReconciliationController::class, 'bulkMatch'])->name('bulk-match');
         Route::post('unmatch/{transaction}', [\App\Http\Controllers\Api\BankReconciliationController::class, 'unmatch'])->name('unmatch');
         Route::post('ignore/{bankTransaction}', [\App\Http\Controllers\Api\BankReconciliationController::class, 'ignore'])->name('ignore');
+        Route::post('bulk-create-and-match', [\App\Http\Controllers\Api\BankReconciliationController::class, 'bulkCreateAndMatch'])->name('bulk-create-and-match');
+        Route::delete('bank-transaction/{bankTransaction}', [\App\Http\Controllers\Api\BankReconciliationController::class, 'destroyBankTransaction'])->name('destroy');
     });
 
     // ACL / RBAC
