@@ -24,6 +24,8 @@ return new class extends Migration
         // 2. Remove from categories
         Schema::table('patrimony_categories', function (Blueprint $table) {
             if (Schema::hasColumn('patrimony_categories', 'prefix')) {
+                // SQLite constraint fix: drop unique index before dropping column
+                $table->dropUnique(['prefix']);
                 $table->dropColumn('prefix');
             }
             if (Schema::hasColumn('patrimony_categories', 'last_counter')) {
@@ -39,7 +41,7 @@ return new class extends Migration
     {
         Schema::table('patrimony_categories', function (Blueprint $table) {
             if (!Schema::hasColumn('patrimony_categories', 'prefix')) {
-                $table->string('prefix', 10)->nullable();
+                $table->string('prefix', 10)->nullable()->unique();
             }
             if (!Schema::hasColumn('patrimony_categories', 'last_counter')) {
                 $table->unsignedInteger('last_counter')->default(0);
