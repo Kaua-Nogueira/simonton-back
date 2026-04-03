@@ -50,6 +50,11 @@ class AuthController extends Controller
         $userData = $user->toArray();
         $userData['all_permissions'] = $allPermissions;
         
+        // Ensure 'role' is populated for frontend logic if missing on database column
+        if (empty($userData['role']) && $user->roles->count() > 0) {
+            $userData['role'] = $user->roles->first()->name;
+        }
+        
         return response()->json($userData);
     }
 

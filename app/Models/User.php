@@ -19,6 +19,14 @@ class User extends Authenticatable
         'member_id',
     ];
 
+    public function getRoleAttribute($value)
+    {
+        if ($value) return $value;
+        
+        $role = $this->roles()->first();
+        return $role ? $role->name : null;
+    }
+
     protected $hidden = [
         'password',
         'remember_token',
@@ -29,7 +37,7 @@ class User extends Authenticatable
         'password' => 'hashed',
     ];
 
-    protected $appends = ['is_super_admin', 'all_permissions'];
+    protected $appends = ['is_super_admin', 'role', 'all_permissions'];
 
     public function canView(): bool
     {

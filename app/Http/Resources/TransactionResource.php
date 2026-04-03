@@ -36,6 +36,12 @@ class TransactionResource extends JsonResource
                 'name' => $this->reconciledBy->name,
             ] : null),
             'splitTransactions' => $this->whenLoaded('splitTransactions', fn() => TransactionSplitResource::collection($this->splitTransactions)),
+            'reconciliation' => $this->whenLoaded('reconciliation', fn() => $this->reconciliation ? [
+                'id' => $this->reconciliation->id,
+                'status' => $this->reconciliation->status,
+                'total_reconciled' => (float) $this->reconciliation->total_reconciled,
+                'total_advanced' => (float) $this->reconciliation->total_advanced,
+            ] : null),
             'createdAt' => $this->created_at->toISOString(),
             'updatedAt' => $this->updated_at->toISOString(),
             'created_at' => $this->created_at->toISOString(),

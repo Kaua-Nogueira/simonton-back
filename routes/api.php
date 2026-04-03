@@ -10,6 +10,7 @@ use App\Http\Controllers\Api\ReportController;
 use App\Http\Controllers\Api\RoleController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\EbdController;
+use App\Http\Controllers\Api\MemberAccessController;
 use Illuminate\Support\Facades\Route;
 
 // Public Routes
@@ -87,6 +88,13 @@ Route::middleware(['auth:sanctum', 'acl'])->group(function () {
         Route::post('/members/{member}/user', [App\Http\Controllers\MemberUserController::class, 'store'])->name('user.store');
         Route::put('/members/{member}/user', [App\Http\Controllers\MemberUserController::class, 'update'])->name('user.update');
         Route::delete('/members/{member}/user', [App\Http\Controllers\MemberUserController::class, 'destroy'])->name('user.destroy');
+        Route::post('/members/{member}/generate-access', [MemberAccessController::class, 'generateAccess'])->name('generate-access');
+    });
+
+    // Member Portal (Self-Service)
+    Route::group(['prefix' => 'portal', 'as' => 'portal.'], function () {
+        Route::get('/me', [MemberAccessController::class, 'me'])->name('me');
+        Route::get('/contributions', [MemberAccessController::class, 'contributions'])->name('contributions');
     });
 
     // Categories
@@ -204,6 +212,17 @@ Route::middleware(['auth:sanctum', 'acl'])->group(function () {
         Route::get('contas-pagar/dashboard', [\App\Http\Controllers\Api\ContaPagarController::class, 'dashboard'])->name('contas-pagar.dashboard');
         Route::post('contas-pagar/{contaPagar}/pay', [\App\Http\Controllers\Api\ContaPagarController::class, 'pay'])->name('contas-pagar.pay');
         Route::apiResource('contas-pagar', \App\Http\Controllers\Api\ContaPagarController::class);
+
+        // Prestação de Contas (Expense Reconciliations)
+        Route::prefix('reconciliations')->as('reconciliations.')->group(function () {
+            Route::get('/', [\App\Http\Controllers\Api\ExpenseReconciliationController::class, 'index'])->name('index');
+            Route::post('/', [\App\Http\Controllers\Api\ExpenseReconciliationController::class, 'store'])->name('store');
+            Route::get('/{reconciliation}', [\App\Http\Controllers\Api\ExpenseReconciliationController::class, 'show'])->name('show');
+            Route::post('/{reconciliation}/items', [\App\Http\Controllers\Api\ExpenseReconciliationController::class, 'addItem'])->name('items.add');
+            Route::delete('/{reconciliation}/items/{item}', [\App\Http\Controllers\Api\ExpenseReconciliationController::class, 'removeItem'])->name('items.remove');
+            Route::post('/{reconciliation}/close', [\App\Http\Controllers\Api\ExpenseReconciliationController::class, 'close'])->name('close');
+            Route::get('/{reconciliation}/pdf', [\App\Http\Controllers\Api\ExpenseReconciliationController::class, 'pdf'])->name('pdf');
+        });
     });
 
     // Bank Reconciliation

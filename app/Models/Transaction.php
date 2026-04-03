@@ -81,6 +81,11 @@ class Transaction extends BaseModel
         return $this->belongsTo(Society::class);
     }
 
+    public function reconciliation(): \Illuminate\Database\Eloquent\Relations\HasOne
+    {
+        return $this->hasOne(ExpenseReconciliation::class);
+    }
+
     public function scopePending($query)
     {
         return $query->where('status', 'pending');
@@ -94,6 +99,11 @@ class Transaction extends BaseModel
     public function scopeConfirmed($query)
     {
         return $query->whereIn('status', ['confirmed', 'split']);
+    }
+
+    public function isReconciliationClosed(): bool
+    {
+        return $this->reconciliation && $this->reconciliation->status === 'closed';
     }
 
     public function hasHighConfidence(): bool

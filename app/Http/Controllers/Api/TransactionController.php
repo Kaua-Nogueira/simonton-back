@@ -28,7 +28,7 @@ class TransactionController extends Controller
     {
         $this->authorize('viewAny', Transaction::class);
 
-        $query = Transaction::with(['member', 'category', 'costCenter', 'reconciledBy', 'society'])
+        $query = Transaction::with(['member', 'category', 'costCenter', 'reconciledBy', 'society', 'reconciliation'])
             ->whereNull('parent_transaction_id');
 
         if ($request->has('type')) {
@@ -112,10 +112,15 @@ class TransactionController extends Controller
                 $updateData['status'] = 'suggested';
 
                 // AUTO-CONFIRM if confidence is extremely high (User request: don't require post-info)
+                // RULE: Never auto-confirm member expenses (needs reconciliation first)
                 if ($suggestions['confidence'] >= 95) {
-                    $updateData['status'] = 'confirmed';
-                    $updateData['reconciled_by'] = auth()->id() ?? 1; // System or Current User
-                    $updateData['reconciled_at'] = now();
+                    $isMemberExpense = $transaction->type === 'expense' && ($transaction->member_id || !empty($updateData['member_id']));
+                    
+                    if (!$isMemberExpense) {
+                        $updateData['status'] = 'confirmed';
+                        $updateData['reconciled_by'] = auth()->user()?->id ?? 1; // System or Current User
+                        $updateData['reconciled_at'] = now();
+                    }
                 }
 
                 $transaction->update($updateData);
@@ -138,7 +143,15 @@ class TransactionController extends Controller
 
         if ($transaction->date->isFuture()) {
             return response()->json([
-                'message' => 'Transaction date cannot be in the future',
+                'message' => 'A data da transação não pode estar no futuro.',
+            ], 422);
+        }
+
+        // RULE: Member expenses MUST be reconciled ("batidas") before hitting the cash balance (confirmation)
+        $isMemberExpense = $transaction->type === 'expense' && ($request->memberId || $transaction->member_id);
+        if ($isMemberExpense && !$transaction->isReconciliationClosed()) {
+            return response()->json([
+                'message' => 'Esta saída está vinculada a um membro e exige que a prestação de contas seja finalizada ("batida") antes da confirmação bancária.',
             ], 422);
         }
 
@@ -150,7 +163,7 @@ class TransactionController extends Controller
                 'category_id' => $request->categoryId,
                 'cost_center_id' => $request->costCenterId,
                 'status' => 'confirmed',
-                'reconciled_by' => auth()->id(),
+                'reconciled_by' => $request->user()->id,
                 'reconciled_at' => now(),
             ]);
 
@@ -184,7 +197,7 @@ class TransactionController extends Controller
             ], 422);
         }
 
-        DB::transaction(function () use ($splits, $transaction) {
+        DB::transaction(function () use ($request, $splits, $transaction) {
             // Create split transactions
             foreach ($splits as $split) {
                 $transaction->splitTransactions()->create([
@@ -198,7 +211,7 @@ class TransactionController extends Controller
             // Update parent transaction status
             $transaction->update([
                 'status' => 'split',
-                'reconciled_by' => auth()->id(),
+                'reconciled_by' => $request->user()->id,
                 'reconciled_at' => now(),
             ]);
 
@@ -282,7 +295,7 @@ class TransactionController extends Controller
         // Let's use viewAny/index for safety
         $this->authorize('viewAny', Transaction::class);
 
-        $transactions = Transaction::with(['member', 'category', 'costCenter'])
+        $transactions = Transaction::with(['member', 'category', 'costCenter', 'reconciliation'])
             ->whereIn('status', ['pending', 'suggested'])
             ->whereNull('parent_transaction_id')
             ->orderBy('suggestion_confidence', 'desc')
