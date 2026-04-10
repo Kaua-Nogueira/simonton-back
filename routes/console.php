@@ -10,3 +10,4 @@ Artisan::command('inspire', function () {
 
 // Daily processing: mark overdue contas and generate next-month recurring instances
 Schedule::command('contas-pagar:process')->dailyAt('06:00');
+Schedule::command('data:purge')->dailyAt('03:30');

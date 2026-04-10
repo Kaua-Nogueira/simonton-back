@@ -94,7 +94,7 @@ class SecurityTest extends TestCase
         $response->assertStatus(200);
     }
 
-    public function test_admin_bypasses_all_policy_and_acl_checks()
+    public function test_admin_still_requires_mfa_before_accessing_protected_routes()
     {
         $admin = $this->createTestUser('admin');
         $transaction = $this->createTestTransaction();
@@ -104,6 +104,9 @@ class SecurityTest extends TestCase
 
         $response = $this->actingAs($admin)->getJson("/api/transactions/{$transaction->id}");
 
-        $response->assertStatus(200);
+        $response->assertStatus(403)
+            ->assertJson([
+                'code' => 'MFA_ENROLL_REQUIRED',
+            ]);
     }
 }

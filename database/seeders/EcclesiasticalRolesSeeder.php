@@ -28,44 +28,7 @@ class EcclesiasticalRolesSeeder extends Seeder
             ['name' => 'Secretário da Junta Diaconal', 'type' => 'function', 'category' => 'Junta Diaconal'],
             ['name' => 'Tesoureiro da Junta Diaconal', 'type' => 'function', 'category' => 'Junta Diaconal'],
             ['name' => 'Membro da Junta Diaconal', 'type' => 'function', 'category' => 'Junta Diaconal'],
-
-            // 4. TIPO: SOCIEDADES INTERNAS (ORGANIZAÇÕES AUXILIARES)
-            // SAF
-            ['name' => 'Presidente da SAF', 'type' => 'function', 'category' => 'Sociedade Interna (SAF)'],
-            ['name' => 'Vice-Presidente da SAF', 'type' => 'function', 'category' => 'Sociedade Interna (SAF)'],
-            ['name' => 'Secretária da SAF', 'type' => 'function', 'category' => 'Sociedade Interna (SAF)'],
-            ['name' => 'Tesoureira da SAF', 'type' => 'function', 'category' => 'Sociedade Interna (SAF)'],
-            ['name' => 'Conselheiro da SAF', 'type' => 'function', 'category' => 'Sociedade Interna (SAF)'],
-
-            // UMP
-            ['name' => 'Presidente da UMP', 'type' => 'function', 'category' => 'Sociedade Interna (UMP)'],
-            ['name' => 'Vice-Presidente da UMP', 'type' => 'function', 'category' => 'Sociedade Interna (UMP)'],
-            ['name' => 'Secretário da UMP', 'type' => 'function', 'category' => 'Sociedade Interna (UMP)'],
-            ['name' => 'Tesoureiro da UMP', 'type' => 'function', 'category' => 'Sociedade Interna (UMP)'],
-            ['name' => 'Conselheiro da UMP', 'type' => 'function', 'category' => 'Sociedade Interna (UMP)'],
-
-            // UPH
-            ['name' => 'Presidente da UPH', 'type' => 'function', 'category' => 'Sociedade Interna (UPH)'],
-            ['name' => 'Vice-Presidente da UPH', 'type' => 'function', 'category' => 'Sociedade Interna (UPH)'],
-            ['name' => 'Secretário da UPH', 'type' => 'function', 'category' => 'Sociedade Interna (UPH)'],
-            ['name' => 'Tesoureiro da UPH', 'type' => 'function', 'category' => 'Sociedade Interna (UPH)'],
-            ['name' => 'Conselheiro da UPH', 'type' => 'function', 'category' => 'Sociedade Interna (UPH)'],
-
-            // UPA
-            ['name' => 'Presidente da UPA', 'type' => 'function', 'category' => 'Sociedade Interna (UPA)'],
-            ['name' => 'Vice-Presidente da UPA', 'type' => 'function', 'category' => 'Sociedade Interna (UPA)'],
-            ['name' => 'Secretário da UPA', 'type' => 'function', 'category' => 'Sociedade Interna (UPA)'],
-            ['name' => 'Tesoureiro da UPA', 'type' => 'function', 'category' => 'Sociedade Interna (UPA)'],
-            ['name' => 'Conselheiro da UPA', 'type' => 'function', 'category' => 'Sociedade Interna (UPA)'],
-
-             // UCP
-             ['name' => 'Presidente da UCP', 'type' => 'function', 'category' => 'Sociedade Interna (UCP)'],
-             ['name' => 'Vice-Presidente da UCP', 'type' => 'function', 'category' => 'Sociedade Interna (UCP)'],
-             ['name' => 'Secretário da UCP', 'type' => 'function', 'category' => 'Sociedade Interna (UCP)'],
-             ['name' => 'Tesoureiro da UCP', 'type' => 'function', 'category' => 'Sociedade Interna (UCP)'],
-             ['name' => 'Conselheiro da UCP', 'type' => 'function', 'category' => 'Sociedade Interna (UCP)'],
-
-
+            
             // 5. TIPO: EDUCAÇÃO CRISTÃ (EBD)
             ['name' => 'Superintendente da EBD', 'type' => 'function', 'category' => 'Educação Cristã (EBD)'],
             ['name' => 'Vice-Superintendente da EBD', 'type' => 'function', 'category' => 'Educação Cristã (EBD)'],

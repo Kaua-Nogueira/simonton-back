@@ -73,9 +73,12 @@ class MemberController extends Controller
                 'data' => new MemberResource($member),
             ], 201);
         } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error('Member creation failed', [
+                'error' => $e->getMessage(),
+            ]);
+
             return response()->json([
-                'message' => 'Error creating member: ' . $e->getMessage(),
-                'trace' => $e->getTraceAsString()
+                'message' => 'Erro interno ao criar membro. Tente novamente ou contate o suporte.'
             ], 500);
         }
     }

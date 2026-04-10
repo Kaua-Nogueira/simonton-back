@@ -15,6 +15,11 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'must_change_password',
+        'mfa_enabled',
+        'mfa_secret',
+        'mfa_backup_codes',
+        'mfa_confirmed_at',
         'role',
         'member_id',
     ];
@@ -35,6 +40,11 @@ class User extends Authenticatable
     protected $casts = [
         'email_verified_at' => 'datetime',
         'password' => 'hashed',
+        'must_change_password' => 'boolean',
+        'mfa_enabled' => 'boolean',
+        'mfa_secret' => 'encrypted',
+        'mfa_backup_codes' => 'encrypted:array',
+        'mfa_confirmed_at' => 'datetime',
     ];
 
     protected $appends = ['is_super_admin', 'role', 'all_permissions'];
@@ -151,6 +161,39 @@ class User extends Authenticatable
         }
 
         return $this->getAllPermissions()->contains('name', $permission);
+    }
+
+    public function hasCriticalAccess(): bool
+    {
+        if ($this->isSuperAdmin()) {
+            return true;
+        }
+
+        $criticalPermissions = [
+            'transactions.confirm',
+            'transactions.destroy',
+            'finance.reconciliations.index',
+            'finance.reconciliations.store',
+            'finance.reconciliations.close',
+            'reports.view',
+            'reports.dizimos',
+            'reports.church.balancete',
+            'reconciliation.match',
+            'reconciliation.bulk-match',
+            'reconciliation.bulk-create-and-match',
+        ];
+
+        foreach ($criticalPermissions as $permission) {
+            if ($this->hasPermission($permission)) {
+                return true;
+            }
+        }
+
+        // Fallback by role naming for treasury/financial profiles.
+        return $this->roles()->where(function ($query) {
+            $query->whereRaw('LOWER(name) like ?', ['%tesour%'])
+                ->orWhereRaw('LOWER(name) like ?', ['%finance%']);
+        })->exists();
     }
 
     public function givePermissionTo($permission)

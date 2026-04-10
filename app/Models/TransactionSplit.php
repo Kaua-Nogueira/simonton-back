@@ -15,6 +15,7 @@ class TransactionSplit extends BaseModel
         'amount',
         'category_id',
         'cost_center_id',
+        'member_id',
         'notes',
     ];
 
@@ -35,5 +36,10 @@ class TransactionSplit extends BaseModel
     public function costCenter(): BelongsTo
     {
         return $this->belongsTo(CostCenter::class);
+    }
+
+    public function member(): BelongsTo
+    {
+        return $this->belongsTo(Member::class);
     }
 }

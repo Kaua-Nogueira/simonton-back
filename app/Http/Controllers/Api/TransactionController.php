@@ -84,8 +84,14 @@ class TransactionController extends Controller
                 'data' => new TransactionResource($transaction->fresh()),
             ], 201);
         } catch (\Throwable $e) {
-            \Illuminate\Support\Facades\Log::error('Store Transaction Error: ' . $e->getMessage());
-            return response()->json(['error' => $e->getMessage()], 500);
+            \Illuminate\Support\Facades\Log::error('Store Transaction Error', [
+                'message' => $e->getMessage(),
+                'exception' => $e,
+            ]);
+
+            return response()->json([
+                'message' => 'Não foi possível criar a transação no momento.',
+            ], 500);
         }
     }
 
@@ -204,6 +210,7 @@ class TransactionController extends Controller
                     'amount' => $split['amount'],
                     'category_id' => $split['categoryId'],
                     'cost_center_id' => $split['costCenterId'] ?? null,
+                    'member_id' => $split['memberId'] ?? null,
                     'notes' => $split['notes'] ?? null,
                 ]);
             }

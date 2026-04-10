@@ -65,6 +65,7 @@ class ScanPermissions extends Command
                 'treasury'       => 'Tesouraria (Diaconia)',
                 'notifications'  => 'Geral (Notificações)',
                 'reconciliation' => 'Financeiro (Conciliação)',
+                'calendar'       => 'Agenda Eclesiástica',
                 'login'          => null, // skip
                 'auth'           => null, // skip
             ];
@@ -97,6 +98,10 @@ class ScanPermissions extends Command
                 'dre'       => 'Ver DRE',
                 'items'     => 'Ver Itens',
                 'report'    => 'Gerar Relatório',
+                'publish'   => 'Publicar',
+                'cancel'    => 'Cancelar',
+                'complete'  => 'Concluir',
+                'respond'   => 'Responder Escala',
             ];
 
             $displayName = ($groupNames[$mainGroup] ?? ucfirst($mainGroup)) . ': ' . ($actionNames[$action] ?? ucfirst($action));

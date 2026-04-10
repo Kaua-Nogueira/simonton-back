@@ -28,10 +28,20 @@ class DizimosReportController extends Controller
                   ->orWhere('name', 'LIKE', '%oferta%');
             })->pluck('id');
 
-        $transactions = Transaction::whereIn('category_id', $categories)
+        // 1. Pegar transações confirmadas que NÃO foram divididas
+        $directTransactions = Transaction::whereIn('category_id', $categories)
             ->where('status', 'confirmed')
             ->whereYear('date', $year)
             ->with(['member', 'category'])
+            ->get();
+
+        // 2. Pegar divisões (splits) de transações divididas que estão nas categorias
+        $splitData = \App\Models\TransactionSplit::whereIn('category_id', $categories)
+            ->whereHas('transaction', function($q) use ($year) {
+                $q->where('status', 'split')
+                  ->whereYear('date', $year);
+            })
+            ->with(['member', 'category', 'transaction'])
             ->get();
 
         // Agrupamento manual por Mês e por Categoria
@@ -45,7 +55,8 @@ class DizimosReportController extends Controller
             ];
         }
 
-        foreach ($transactions as $t) {
+        // Processar transações diretas
+        foreach ($directTransactions as $t) {
             $month = Carbon::parse($t->date)->month;
             $amount = (float) $t->amount;
             
@@ -60,10 +71,51 @@ class DizimosReportController extends Controller
             $monthlyData[$month]['total'] += $amount;
         }
 
+        // Processar divisões
+        foreach ($splitData as $split) {
+            $month = Carbon::parse($split->transaction->date)->month;
+            $amount = (float) $split->amount;
+            
+            $isDizimo = stripos($split->category->name, 'dizimo') !== false || stripos($split->category->name, 'dízimo') !== false;
+            
+            if ($isDizimo) {
+                $monthlyData[$month]['dizimos'] += $amount;
+            } else {
+                $monthlyData[$month]['ofertas'] += $amount;
+            }
+            
+            $monthlyData[$month]['total'] += $amount;
+        }
+
+        // Para as transações recentes, vamos unificar as duas fontes para exibição
+        $latest = collect();
+        foreach ($directTransactions as $t) {
+            $latest->push([
+                'id' => $t->id,
+                'date' => $t->date,
+                'amount' => $t->amount,
+                'description' => $t->description,
+                'member' => $t->member,
+                'category' => $t->category,
+                'is_split' => false
+            ]);
+        }
+        foreach ($splitData as $s) {
+            $latest->push([
+                'id' => $s->transaction_id . '-' . $s->id,
+                'date' => $s->transaction->date,
+                'amount' => $s->amount,
+                'description' => $s->transaction->description . ' (Parte)',
+                'member' => $s->member,
+                'category' => $s->category,
+                'is_split' => true
+            ]);
+        }
+
         return response()->json([
             'year' => $year,
             'summary' => array_values($monthlyData),
-            'latest_transactions' => $transactions->sortByDesc('date')->take(20)->values()
+            'latest_transactions' => $latest->sortByDesc('date')->take(20)->values()
         ]);
     }
 }

@@ -10,6 +10,7 @@ use App\Http\Controllers\Api\ReportController;
 use App\Http\Controllers\Api\RoleController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\EbdController;
+use App\Http\Controllers\Api\EcclesiasticalCalendarController;
 use App\Http\Controllers\Api\MemberAccessController;
 use Illuminate\Support\Facades\Route;
 
@@ -17,41 +18,26 @@ use Illuminate\Support\Facades\Route;
 Route::post('/login', [AuthController::class, 'login'])
     ->middleware('throttle:5,1')
     ->name('login');
-// Debug Route for Session Config
-Route::get('/debug-session', function() {
-    return response()->json([
-        'session_config' => config('session'),
-        'cors_config' => config('cors'),
-        'env_same_site' => env('SESSION_SAME_SITE'),
-        'cookies' => request()->cookies->all(),
-    ]);
-});
+Route::post('/password/forgot', [AuthController::class, 'forgotPassword'])
+    ->middleware('throttle:5,1')
+    ->name('password.forgot');
+Route::post('/password/reset', [AuthController::class, 'resetPassword'])
+    ->middleware('throttle:5,1')
+    ->name('password.reset');
 
-Route::get('/debug-sanctum', function() {
-    $request = request();
-    $origin = $request->headers->get('origin');
-    $referer = $request->headers->get('referer');
-    $isStateful = \Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful::fromFrontend($request);
-    
-    return response()->json([
-        'is_stateful' => $isStateful,
-        'origin' => $origin,
-        'referer' => $referer,
-        'stateful_domains' => config('sanctum.stateful'),
-        'session_domain' => config('session.domain'),
-        'session_id' => session()->getId(),
-        'cookies' => $request->cookies->all(),
-        'sanctum_current_host' => \Laravel\Sanctum\Sanctum::currentRequestHost(),
-    ]);
-});
-// Public PDF Route for direct browser access
-Route::get('meetings/{meeting}/pdf', [\App\Http\Controllers\Api\MeetingController::class, 'pdf']);
-
+Route::get('/public-calendar', [EcclesiasticalCalendarController::class, 'publicIndex'])
+    ->name('calendar.public');
 // Protected Routes
-Route::middleware(['auth:sanctum', 'acl'])->group(function () {
+Route::middleware(['auth:sanctum', 'mfa', 'acl'])->group(function () {
     Route::post('/logout', [AuthController::class, 'logout'])->name('auth.logout');
     Route::get('/user', [AuthController::class, 'user'])->name('auth.user');
     Route::put('/user/password', [AuthController::class, 'updatePassword'])->name('auth.password.update');
+    Route::get('/mfa/status', [\App\Http\Controllers\Api\MfaController::class, 'status'])->name('mfa.status');
+    Route::post('/mfa/setup', [\App\Http\Controllers\Api\MfaController::class, 'setup'])->middleware('throttle:10,1')->name('mfa.setup');
+    Route::post('/mfa/enable', [\App\Http\Controllers\Api\MfaController::class, 'enable'])->middleware('throttle:10,1')->name('mfa.enable');
+    Route::post('/mfa/verify', [\App\Http\Controllers\Api\MfaController::class, 'verify'])->middleware('throttle:10,1')->name('mfa.verify');
+    Route::post('/mfa/backup/regenerate', [\App\Http\Controllers\Api\MfaController::class, 'regenerateBackupCodes'])->middleware('throttle:5,1')->name('mfa.backup.regenerate');
+    Route::post('/mfa/disable', [\App\Http\Controllers\Api\MfaController::class, 'disable'])->middleware('throttle:5,1')->name('mfa.disable');
 
     // Roles
     Route::get('/roles', [RoleController::class, 'index']);
@@ -115,18 +101,44 @@ Route::middleware(['auth:sanctum', 'acl'])->group(function () {
     Route::post('/church-configs', [\App\Http\Controllers\Api\ChurchConfigController::class, 'update'])->name('church-configs.update');
 
     // EBD (Escola Dominical)
+    Route::get('/ebd/stats', [EbdController::class, 'stats'])->name('ebd.stats');
     Route::get('/ebd/classes', [EbdController::class, 'index'])->name('ebd.classes.index');
+    Route::post('/ebd/classes', [EbdController::class, 'store'])->name('ebd.classes.store');
+    Route::put('/ebd/classes/{class}', [EbdController::class, 'update'])->name('ebd.classes.update');
+    Route::delete('/ebd/classes/{class}', [EbdController::class, 'destroy'])->name('ebd.classes.destroy');
     Route::get('/ebd/classes/{class}', [EbdController::class, 'show'])->name('ebd.classes.show');
+    Route::post('/ebd/classes/{class}/enroll', [EbdController::class, 'enroll'])->name('ebd.classes.enroll');
+    Route::delete('/ebd/classes/{class}/members/{member}', [EbdController::class, 'unenroll'])->name('ebd.classes.unenroll');
     Route::post('/ebd/classes/{class}/attendance', [EbdController::class, 'storeAttendance'])->name('ebd.classes.attendance');
 
+    // Ecclesiastical Calendar (Agenda + Escalas)
+    Route::prefix('calendar')->as('calendar.')->group(function () {
+        Route::get('/events', [EcclesiasticalCalendarController::class, 'index'])->name('events.index');
+        Route::post('/events', [EcclesiasticalCalendarController::class, 'store'])->middleware('throttle:30,1')->name('events.store');
+        Route::get('/events/{event}', [EcclesiasticalCalendarController::class, 'show'])->name('events.show');
+        Route::put('/events/{event}', [EcclesiasticalCalendarController::class, 'update'])->middleware('throttle:30,1')->name('events.update');
+        Route::delete('/events/{event}', [EcclesiasticalCalendarController::class, 'destroy'])->middleware('throttle:30,1')->name('events.destroy');
+        Route::post('/events/{event}/publish', [EcclesiasticalCalendarController::class, 'publish'])->middleware('throttle:30,1')->name('events.publish');
+        Route::post('/events/{event}/cancel', [EcclesiasticalCalendarController::class, 'cancel'])->middleware('throttle:30,1')->name('events.cancel');
+        Route::post('/events/{event}/complete', [EcclesiasticalCalendarController::class, 'complete'])->middleware('throttle:30,1')->name('events.complete');
+
+        Route::get('/events/{event}/assignments', [EcclesiasticalCalendarController::class, 'assignments'])->name('events.assignments.index');
+        Route::post('/events/{event}/assignments', [EcclesiasticalCalendarController::class, 'addAssignment'])->middleware('throttle:60,1')->name('events.assignments.store');
+        Route::put('/events/{event}/assignments/{assignment}', [EcclesiasticalCalendarController::class, 'updateAssignment'])->middleware('throttle:60,1')->name('events.assignments.update');
+        Route::delete('/events/{event}/assignments/{assignment}', [EcclesiasticalCalendarController::class, 'removeAssignment'])->middleware('throttle:60,1')->name('events.assignments.destroy');
+        Route::post('/assignments/{assignment}/respond', [EcclesiasticalCalendarController::class, 'respondAssignment'])->middleware('throttle:30,1')->name('assignments.respond');
+        Route::get('/my-assignments', [EcclesiasticalCalendarController::class, 'myAssignments'])->name('my-assignments.index');
+    });
+
     // Reports
-    Route::get('/reports/dizimos', [\App\Http\Controllers\Api\DizimosReportController::class, 'report'])->name('reports.dizimos');
-    Route::get('/reports/church/balancete', [\App\Http\Controllers\Api\ChurchReportController::class, 'churchBalancete'])->name('reports.church.balancete');
-    Route::get('/reports/{type}', [ReportController::class, 'show'])->name('reports.view');
+    Route::get('/reports/dizimos', [\App\Http\Controllers\Api\DizimosReportController::class, 'report'])->middleware('throttle:30,1')->name('reports.dizimos');
+    Route::get('/reports/church/balancete', [\App\Http\Controllers\Api\ChurchReportController::class, 'churchBalancete'])->middleware('throttle:30,1')->name('reports.church.balancete');
+    Route::get('/reports/{type}', [ReportController::class, 'show'])->middleware('throttle:30,1')->name('reports.view');
 
     // Secretariat (Atas & Resoluções)
     Route::apiResource('meetings', \App\Http\Controllers\Api\MeetingController::class);
     Route::post('meetings/{meeting}/populate', [\App\Http\Controllers\Api\MeetingController::class, 'populateAttendance'])->name('meetings.populate');
+    Route::get('meetings/{meeting}/pdf', [\App\Http\Controllers\Api\MeetingController::class, 'pdf'])->name('meetings.pdf');
     Route::apiResource('resolutions', \App\Http\Controllers\Api\ResolutionController::class);
 
     // Internal Societies
@@ -136,13 +148,16 @@ Route::middleware(['auth:sanctum', 'acl'])->group(function () {
     Route::apiResource('societies.members', \App\Http\Controllers\Api\SocietyMemberController::class);
     Route::apiResource('societies.mandates', \App\Http\Controllers\Api\SocietyMandateController::class);
     Route::post('societies/{society}/mandates/{mandate}/roles', [\App\Http\Controllers\Api\SocietyMandateController::class, 'addRole'])->name('societies.mandates.roles.add');
+    Route::post('societies/{society}/mandates/{mandate}/roles/batch', [\App\Http\Controllers\Api\SocietyMandateController::class, 'batchAddRoles'])->name('societies.mandates.roles.batch');
     Route::delete('societies/{society}/mandates/{mandate}/roles/{role}', [\App\Http\Controllers\Api\SocietyMandateController::class, 'removeRole'])->name('societies.mandates.roles.remove');
 
     Route::get('societies/{society}/financial', [\App\Http\Controllers\Api\SocietyFinancialController::class, 'index'])->name('societies.financial.index');
     Route::post('societies/{society}/financial/movements', [\App\Http\Controllers\Api\SocietyFinancialController::class, 'storeMovement'])->name('societies.financial.movements');
     Route::post('societies/{society}/financial/movements/{movement}/confirm', [\App\Http\Controllers\Api\SocietyFinancialController::class, 'confirmMovement'])->name('societies.financial.movements.confirm');
+    Route::get('societies/{society}/financial/movements/{movement}/attachment', [\App\Http\Controllers\Api\SecureFileController::class, 'societyMovementAttachment'])->name('societies.financial.movements.attachment');
     Route::get('societies/{society}/financial/dues', [\App\Http\Controllers\Api\SocietyFinancialController::class, 'getDuesGrid'])->name('societies.financial.dues');
     Route::post('societies/{society}/financial/dues', [\App\Http\Controllers\Api\SocietyFinancialController::class, 'payDues'])->name('societies.financial.pay-dues');
+    Route::post('societies/{society}/financial/dues/batch', [\App\Http\Controllers\Api\SocietyFinancialController::class, 'batchPayDues'])->name('societies.financial.pay-dues-batch');
 
     Route::get('societies/{society}/obligations', [\App\Http\Controllers\Api\SocietyObligationController::class, 'index'])->name('societies.obligations.index');
     Route::post('societies/{society}/obligations', [\App\Http\Controllers\Api\SocietyObligationController::class, 'store'])->name('societies.obligations.store');
@@ -214,19 +229,20 @@ Route::middleware(['auth:sanctum', 'acl'])->group(function () {
         Route::apiResource('contas-pagar', \App\Http\Controllers\Api\ContaPagarController::class);
 
         // Prestação de Contas (Expense Reconciliations)
-        Route::prefix('reconciliations')->as('reconciliations.')->group(function () {
+        Route::prefix('reconciliations')->as('reconciliations.')->middleware('throttle:60,1')->group(function () {
             Route::get('/', [\App\Http\Controllers\Api\ExpenseReconciliationController::class, 'index'])->name('index');
             Route::post('/', [\App\Http\Controllers\Api\ExpenseReconciliationController::class, 'store'])->name('store');
             Route::get('/{reconciliation}', [\App\Http\Controllers\Api\ExpenseReconciliationController::class, 'show'])->name('show');
             Route::post('/{reconciliation}/items', [\App\Http\Controllers\Api\ExpenseReconciliationController::class, 'addItem'])->name('items.add');
             Route::delete('/{reconciliation}/items/{item}', [\App\Http\Controllers\Api\ExpenseReconciliationController::class, 'removeItem'])->name('items.remove');
+            Route::get('/{reconciliation}/items/{item}/attachment', [\App\Http\Controllers\Api\SecureFileController::class, 'reconciliationAttachment'])->name('items.attachment');
             Route::post('/{reconciliation}/close', [\App\Http\Controllers\Api\ExpenseReconciliationController::class, 'close'])->name('close');
             Route::get('/{reconciliation}/pdf', [\App\Http\Controllers\Api\ExpenseReconciliationController::class, 'pdf'])->name('pdf');
         });
     });
 
     // Bank Reconciliation
-    Route::prefix('reconciliation')->as('reconciliation.')->group(function () {
+    Route::prefix('reconciliation')->as('reconciliation.')->middleware('throttle:60,1')->group(function () {
         Route::post('import', [\App\Http\Controllers\Api\BankReconciliationController::class, 'import'])->name('import');
         Route::get('pending', [\App\Http\Controllers\Api\BankReconciliationController::class, 'pending'])->name('pending');
         Route::get('history', [\App\Http\Controllers\Api\BankReconciliationController::class, 'history'])->name('history');
@@ -277,7 +293,8 @@ Route::middleware(['auth:sanctum', 'acl'])->group(function () {
         Route::patch('/notifications/read-all', [\App\Http\Controllers\Api\NotificationController::class, 'markAllAsRead'])->name('read-all');
     });
 
-
 });
 
-require __DIR__ . '/debug_acl.php';
+if (app()->environment(['local', 'testing'])) {
+    require __DIR__ . '/debug_acl.php';
+}

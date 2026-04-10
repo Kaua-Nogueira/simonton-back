@@ -15,7 +15,7 @@ class NotificationController extends Controller
     {
         $user = $request->user();
         $count = $user->notifications()->count();
-        \Illuminate\Support\Facades\Log::info("Notification check for user {$user->id} ({$user->email}): Found {$count}");
+        \Illuminate\Support\Facades\Log::info("Notification check for user {$user->id}: Found {$count}");
         $notifications = $user->notifications()->paginate(20);
 
         return response()->json($notifications);

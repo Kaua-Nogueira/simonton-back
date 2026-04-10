@@ -6,12 +6,16 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\SocietyObligation;
 use App\Models\SocietyFinancialMovement;
+use App\Models\Society;
 use Illuminate\Support\Facades\DB;
 
 class SocietyObligationController extends Controller
 {
     public function index($societyId)
     {
+        $society = Society::findOrFail($societyId);
+        $this->authorize('view', $society);
+
         $obligations = SocietyObligation::where('society_id', $societyId)
             ->orderBy('due_date', 'asc')
             ->get();
@@ -21,6 +25,9 @@ class SocietyObligationController extends Controller
 
     public function store(Request $request, $societyId)
     {
+        $society = Society::findOrFail($societyId);
+        $this->authorize('update', $society);
+
         $validated = $request->validate([
             'description' => 'required|string',
             'due_date' => 'required|date',
@@ -36,18 +43,21 @@ class SocietyObligationController extends Controller
 
     public function pay(Request $request, $societyId, $obligationId)
     {
+        $society = Society::findOrFail($societyId);
+        $this->authorize('update', $society);
+
         $obligation = SocietyObligation::where('society_id', $societyId)
             ->findOrFail($obligationId);
             
         $validated = $request->validate([
             'payment_date' => 'required|date',
-            'attachment' => 'nullable|file|max:2048'
+            'attachment' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:2048'
         ]);
 
         return DB::transaction(function() use ($obligation, $validated, $request, $societyId) {
             $attachmentPath = null;
             if ($request->hasFile('attachment')) {
-                $attachmentPath = $request->file('attachment')->store('society_attachments', 'public');
+                $attachmentPath = $request->file('attachment')->store('society_attachments', 'local');
             }
 
             // Create movement

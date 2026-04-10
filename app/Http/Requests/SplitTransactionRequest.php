@@ -17,6 +17,7 @@ class SplitTransactionRequest extends FormRequest
             'splits' => 'required|array|min:2',
             'splits.*.categoryId' => 'required|exists:categories,id',
             'splits.*.costCenterId' => 'nullable|exists:cost_centers,id',
+            'splits.*.memberId' => 'nullable|exists:members,id',
             'splits.*.amount' => 'required|numeric|min:0.01',
             'splits.*.notes' => 'nullable|string|max:255',
         ];

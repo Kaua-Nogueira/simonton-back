@@ -66,6 +66,7 @@ class AclSeeder extends Seeder
             ['title' => 'Membros', 'url' => '/membros', 'icon' => 'Users', 'order' => 1],
             ['title' => 'Atas e Reuniões', 'url' => '/secretaria/atas', 'icon' => 'ScrollText', 'order' => 2],
             ['title' => 'Resoluções', 'url' => '/secretaria/resolucoes', 'icon' => 'CheckSquare', 'order' => 3],
+            ['title' => 'Agenda Eclesiástica', 'url' => '/agenda', 'icon' => 'Calendar', 'order' => 4],
         ]);
 
         // Financeiro
@@ -211,6 +212,7 @@ class AclSeeder extends Seeder
             'Membros' => 'members.index',
             'Atas e Reuniões' => 'meetings.index',
             'Resoluções' => 'resolutions.index',
+            'Agenda Eclesiástica' => 'calendar.events.index',
             'Entradas' => 'transactions.index',
             'Saídas' => 'transactions.index',
             'Contas a Pagar' => 'finance.contas-pagar.index',

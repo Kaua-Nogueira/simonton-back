@@ -9,6 +9,10 @@ use App\Models\Member;
 use App\Models\Category;
 use App\Models\CostCenter;
 use App\Models\Meeting;
+use App\Models\ExpenseReconciliation;
+use App\Models\EcclesiasticalEvent;
+use App\Models\FinancialAccess;
+use App\Models\Report;
 use App\Models\Role; // Added
 use App\Models\Society; // Added
 use App\Policies\TransactionPolicy;
@@ -16,6 +20,10 @@ use App\Policies\MemberPolicy;
 use App\Policies\CategoryPolicy;
 use App\Policies\CostCenterPolicy;
 use App\Policies\MeetingPolicy;
+use App\Policies\ExpenseReconciliationPolicy;
+use App\Policies\EcclesiasticalEventPolicy;
+use App\Policies\FinancialPolicy;
+use App\Policies\ReportPolicy;
 use App\Policies\RolePolicy; // Added
 use App\Policies\SocietyPolicy; // Added
 use Illuminate\Support\Facades\Gate;
@@ -35,17 +43,12 @@ class AppServiceProvider extends ServiceProvider
         Gate::policy(Category::class, CategoryPolicy::class);
         Gate::policy(CostCenter::class, CostCenterPolicy::class);
         Gate::policy(Meeting::class, MeetingPolicy::class);
+        Gate::policy(ExpenseReconciliation::class, ExpenseReconciliationPolicy::class);
+        Gate::policy(EcclesiasticalEvent::class, EcclesiasticalEventPolicy::class);
+        Gate::policy(FinancialAccess::class, FinancialPolicy::class);
+        Gate::policy(Report::class, ReportPolicy::class);
         Gate::policy(Role::class, RolePolicy::class);
         Gate::policy(Society::class, SocietyPolicy::class);
 
-        // Dynamic Sanctum Stateful Domains for LAN access
-        if ($host = request()->getHost()) {
-            $stateful = config('sanctum.stateful', []);
-            $stateful[] = $host;
-            $stateful[] = "{$host}:3000";
-            $stateful[] = "{$host}:3001";
-            $stateful[] = "{$host}:8001";
-            config(['sanctum.stateful' => array_unique($stateful)]);
-        }
     }
 }

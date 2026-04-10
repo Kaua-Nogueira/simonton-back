@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\Member;
+use App\Models\Report;
 use App\Models\Transaction;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -12,15 +14,25 @@ class ReportController extends Controller
 {
     public function show(string $type, Request $request): JsonResponse
     {
-        $startDate = $request->input('startDate', now()->startOfMonth());
-        $endDate = $request->input('endDate', now()->endOfMonth());
+        $this->authorize('view', Report::class);
+
+        $validated = $request->validate([
+            'startDate' => 'nullable|date',
+            'endDate' => 'nullable|date|after_or_equal:startDate',
+            'page' => 'nullable|integer|min:1',
+            'per_page' => 'nullable|integer|min:1|max:100',
+        ]);
+
+        $startDate = $validated['startDate'] ?? now()->startOfMonth()->toDateString();
+        $endDate = $validated['endDate'] ?? now()->endOfMonth()->toDateString();
+        $perPage = (int) ($validated['per_page'] ?? 50);
 
         return match ($type) {
-            'income' => $this->incomeReport($startDate, $endDate),
-            'expense' => $this->expenseReport($startDate, $endDate),
+            'income' => $this->incomeReport($startDate, $endDate, $perPage),
+            'expense' => $this->expenseReport($startDate, $endDate, $perPage),
             'category' => $this->categoryReport($startDate, $endDate),
-            'member' => $this->memberReport($startDate, $endDate),
-            'transfer' => $this->transferReport($startDate, $endDate),
+            'member' => $this->memberReport($startDate, $endDate, $perPage),
+            'transfer' => $this->transferReport($startDate, $endDate, $perPage),
             'trend' => $this->trendReport(),
             default => response()->json(['message' => 'Invalid report type'], 400),
         };
@@ -28,7 +40,6 @@ class ReportController extends Controller
 
     private function trendReport(): JsonResponse
     {
-        // Get last 6 months trend
         $data = [];
         for ($i = 5; $i >= 0; $i--) {
             $month = now()->subMonths($i);
@@ -59,47 +70,53 @@ class ReportController extends Controller
         ]);
     }
 
-    private function incomeReport($startDate, $endDate): JsonResponse
+    private function incomeReport(string $startDate, string $endDate, int $perPage): JsonResponse
     {
-        $data = Transaction::where('type', 'income')
+        $query = Transaction::where('type', 'income')
             ->where('status', 'confirmed')
             ->whereBetween('date', [$startDate, $endDate])
-            ->with(['member', 'category', 'costCenter'])
-            ->orderBy('date', 'desc')
-            ->get();
+            ->with(['member:id,name', 'category:id,name', 'costCenter:id,name'])
+            ->orderBy('date', 'desc');
+
+        $total = (clone $query)->sum('amount');
+        $count = (clone $query)->count();
+        $transactions = $query->paginate($perPage);
 
         return response()->json([
             'type' => 'income',
-            'total' => $data->sum('amount'),
-            'count' => $data->count(),
-            'transactions' => $data,
+            'total' => $total,
+            'count' => $count,
+            'transactions' => $transactions,
         ]);
     }
 
-    private function expenseReport($startDate, $endDate): JsonResponse
+    private function expenseReport(string $startDate, string $endDate, int $perPage): JsonResponse
     {
-        $data = Transaction::where('type', 'expense')
+        $query = Transaction::where('type', 'expense')
             ->where('status', 'confirmed')
             ->whereBetween('date', [$startDate, $endDate])
-            ->with(['member', 'category', 'costCenter'])
-            ->orderBy('date', 'desc')
-            ->get();
+            ->with(['member:id,name', 'category:id,name', 'costCenter:id,name'])
+            ->orderBy('date', 'desc');
+
+        $total = (clone $query)->sum('amount');
+        $count = (clone $query)->count();
+        $transactions = $query->paginate($perPage);
 
         return response()->json([
             'type' => 'expense',
-            'total' => $data->sum('amount'),
-            'count' => $data->count(),
-            'transactions' => $data,
+            'total' => $total,
+            'count' => $count,
+            'transactions' => $transactions,
         ]);
     }
 
-    private function categoryReport($startDate, $endDate): JsonResponse
+    private function categoryReport(string $startDate, string $endDate): JsonResponse
     {
         $data = Transaction::select('category_id', 'type', DB::raw('SUM(amount) as total'), DB::raw('COUNT(*) as count'))
             ->where('status', 'confirmed')
             ->whereBetween('date', [$startDate, $endDate])
             ->groupBy('category_id', 'type')
-            ->with('category')
+            ->with('category:id,name')
             ->get();
 
         return response()->json([
@@ -108,15 +125,15 @@ class ReportController extends Controller
         ]);
     }
 
-    private function memberReport($startDate, $endDate): JsonResponse
+    private function memberReport(string $startDate, string $endDate, int $perPage): JsonResponse
     {
         $data = Transaction::select('member_id', 'type', DB::raw('SUM(amount) as total'), DB::raw('COUNT(*) as count'))
             ->where('status', 'confirmed')
             ->whereNotNull('member_id')
             ->whereBetween('date', [$startDate, $endDate])
             ->groupBy('member_id', 'type')
-            ->with('member')
-            ->get();
+            ->with('member:id,name')
+            ->paginate($perPage);
 
         return response()->json([
             'type' => 'member',
@@ -124,19 +141,19 @@ class ReportController extends Controller
         ]);
     }
 
-    private function transferReport($startDate, $endDate): JsonResponse
+    private function transferReport(string $startDate, string $endDate, int $perPage): JsonResponse
     {
-        // Fetch members transferred/dismissed within the range
-        // dismissal_type = 'Transferência'
-        $data = \App\Models\Member::where('dismissal_type', 'Transferência')
+        $query = Member::select(['id', 'name', 'dismissal_date', 'destination_church'])
+            ->whereIn('dismissal_type', ['Transferencia', 'Transferência'])
             ->whereBetween('dismissal_date', [$startDate, $endDate])
-            ->orderBy('dismissal_date', 'desc')
-            ->get();
+            ->orderBy('dismissal_date', 'desc');
+
+        $count = (clone $query)->count();
 
         return response()->json([
             'type' => 'transfer',
-            'count' => $data->count(),
-            'data' => $data,
+            'count' => $count,
+            'data' => $query->paginate($perPage),
         ]);
     }
 }

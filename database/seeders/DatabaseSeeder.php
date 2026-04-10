@@ -16,9 +16,10 @@ class DatabaseSeeder extends Seeder
     {
         $this->call([
             // Foundational Data
-            FinancialCategoriesSeeder::class,
+            NewChartOfAccountsSeeder::class,
             SocietiesSeeder::class,
             EcclesiasticalRolesSeeder::class,
+            MembersSeeder::class,
             
             // ACL, Menus and Permissions
             AclSeeder::class,

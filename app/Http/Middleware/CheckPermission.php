@@ -29,11 +29,6 @@ class CheckPermission
 
         $routeName = Route::currentRouteName();
 
-        // Portal Bypass for testing
-        if (str_starts_with($routeName, 'members.portal.')) {
-            return $next($request);
-        }
-
         // STRICT: Block unnamed routes
         if (!$routeName) {
             \Illuminate\Support\Facades\Log::error('ACL Security Alert: Attempt to access unnamed route', [
@@ -55,21 +50,42 @@ class CheckPermission
             'notifications.read',
             'notifications.read-all',
             'acl.menus.index',
+            'portal.me',
+            'portal.contributions',
+            'societies.financial.movements.attachment',
+            'finance.reconciliations.items.attachment',
+            'mfa.status',
+            'mfa.setup',
+            'mfa.enable',
+            'mfa.verify',
+            'mfa.backup.regenerate',
+            'mfa.disable',
+            'calendar.assignments.respond',
+            'calendar.my-assignments.index',
         ];
 
-        if (in_array($routeName, $exemptRoutes)) {
+        if ($user->must_change_password) {
+            $passwordUpdateRoutes = [
+                'auth.user',
+                'auth.password.update',
+                'auth.logout',
+            ];
+
+            if (!in_array($routeName, $passwordUpdateRoutes, true)) {
+                return response()->json([
+                    'message' => 'Password update required before accessing this resource.',
+                    'code' => 'PASSWORD_UPDATE_REQUIRED',
+                ], 403);
+            }
+        }
+
+        if (in_array($routeName, $exemptRoutes, true)) {
             return $next($request);
         }
 
         if (!$user->hasPermission($routeName)) {
-            // Dynamic access for Society leaders/members
-            if (str_starts_with($routeName, 'societies.') && $user->member_id !== null) {
-                return $next($request);
-            }
-
             \Illuminate\Support\Facades\Log::warning('ACL Access Denied', [
                 'user_id' => $user->id,
-                'user_name' => $user->name,
                 'role' => $user->roles->pluck('name'),
                 'route' => $routeName,
                 'ip' => $request->ip()

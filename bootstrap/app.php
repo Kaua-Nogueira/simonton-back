@@ -12,12 +12,14 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
+        $middleware->append(\App\Http\Middleware\SecurityHeadersMiddleware::class);
         $middleware->append(\App\Http\Middleware\GlobalAuditMiddleware::class);
         $middleware->statefulApi();
 
         $middleware->alias([
             'verified' => \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
             'acl' => \App\Http\Middleware\CheckPermission::class,
+            'mfa' => \App\Http\Middleware\RequireMfaMiddleware::class,
         ]);
 
         $middleware->validateCsrfTokens(except: [

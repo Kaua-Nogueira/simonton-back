@@ -12,15 +12,20 @@ class AttendanceRecord extends BaseModel
         'present_count',
         'visitors_count',
         'bible_count',
-        'offering_amount',
+        'magazine_count',
+        'teacher_id',
         'attendees'
     ];
 
     protected $casts = [
         'date' => 'date',
         'attendees' => 'array',
-        'offering_amount' => 'decimal:2'
     ];
+
+    public function teacher()
+    {
+        return $this->belongsTo(Member::class, 'teacher_id');
+    }
 
     public function class()
     {
