@@ -66,22 +66,24 @@ class EbdSeeder extends Seeder
             // Fetch some random members to act as students
             $students = Member::inRandomOrder()->limit(rand(5, 12))->get();
             foreach ($students as $m) {
-                ClassEnrollment::create([
+                ClassEnrollment::firstOrCreate([
                     'sunday_school_class_id' => $class->id,
                     'member_id' => $m->id,
-                    'role' => 'student',
                     'year' => date('Y')
+                ], [
+                    'role' => 'student'
                 ]);
             }
 
             // Assign a teacher
             $teacher = Member::inRandomOrder()->first();
             if ($teacher) {
-                ClassEnrollment::create([
+                ClassEnrollment::firstOrCreate([
                     'sunday_school_class_id' => $class->id,
                     'member_id' => $teacher->id,
-                    'role' => 'teacher',
                     'year' => date('Y')
+                ], [
+                    'role' => 'teacher'
                 ]);
             }
         }
