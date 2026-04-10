@@ -66,6 +66,7 @@ class EbdSeeder extends Seeder
             // Fetch some random members to act as students
             $students = Member::inRandomOrder()->limit(rand(5, 12))->get();
             foreach ($students as $m) {
+                // Use firstOrCreate to prevent duplicates if randomly selected as both roles
                 ClassEnrollment::firstOrCreate([
                     'sunday_school_class_id' => $class->id,
                     'member_id' => $m->id,
@@ -75,7 +76,7 @@ class EbdSeeder extends Seeder
                 ]);
             }
 
-            // Assign a teacher
+            // Assign a teacher (could be a random member)
             $teacher = Member::inRandomOrder()->first();
             if ($teacher) {
                 ClassEnrollment::firstOrCreate([

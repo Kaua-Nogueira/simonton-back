@@ -10,7 +10,7 @@ class EcclesiasticalRolesSeeder extends Seeder
     public function run()
     {
         $roles = [
-            // 1. TIPO: OFÍCIOS ECLESIÁSTICOS (Permanentes | Constitucionais | Governo e/ou serviço)
+            // 1. TIPO: OFÍCIOS ECLESIÁSTICOS (Governabilidade e Serviço)
             ['name' => 'Pastor (Presbítero Docente)', 'type' => 'office', 'category' => 'Ofícios Eclesiásticos'],
             ['name' => 'Presbítero Regente', 'type' => 'office', 'category' => 'Ofícios Eclesiásticos'],
             ['name' => 'Diácono', 'type' => 'office', 'category' => 'Ofícios Eclesiásticos'],

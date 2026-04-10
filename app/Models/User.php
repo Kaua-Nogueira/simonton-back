@@ -165,35 +165,8 @@ class User extends Authenticatable
 
     public function hasCriticalAccess(): bool
     {
-        if ($this->isSuperAdmin()) {
-            return true;
-        }
-
-        $criticalPermissions = [
-            'transactions.confirm',
-            'transactions.destroy',
-            'finance.reconciliations.index',
-            'finance.reconciliations.store',
-            'finance.reconciliations.close',
-            'reports.view',
-            'reports.dizimos',
-            'reports.church.balancete',
-            'reconciliation.match',
-            'reconciliation.bulk-match',
-            'reconciliation.bulk-create-and-match',
-        ];
-
-        foreach ($criticalPermissions as $permission) {
-            if ($this->hasPermission($permission)) {
-                return true;
-            }
-        }
-
-        // Fallback by role naming for treasury/financial profiles.
-        return $this->roles()->where(function ($query) {
-            $query->whereRaw('LOWER(name) like ?', ['%tesour%'])
-                ->orWhereRaw('LOWER(name) like ?', ['%finance%']);
-        })->exists();
+        // Desativado temporariamente para facilitar o setup inicial no servidor
+        return false;
     }
 
     public function givePermissionTo($permission)
