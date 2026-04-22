@@ -28,7 +28,7 @@ class EcclesiasticalRolesSeeder extends Seeder
             ['name' => 'Secretário da Junta Diaconal', 'type' => 'function', 'category' => 'Junta Diaconal'],
             ['name' => 'Tesoureiro da Junta Diaconal', 'type' => 'function', 'category' => 'Junta Diaconal'],
             ['name' => 'Membro da Junta Diaconal', 'type' => 'function', 'category' => 'Junta Diaconal'],
-            
+
             // 5. TIPO: EDUCAÇÃO CRISTÃ (EBD)
             ['name' => 'Superintendente da EBD', 'type' => 'function', 'category' => 'Educação Cristã (EBD)'],
             ['name' => 'Vice-Superintendente da EBD', 'type' => 'function', 'category' => 'Educação Cristã (EBD)'],
@@ -60,7 +60,7 @@ class EcclesiasticalRolesSeeder extends Seeder
 
         foreach ($roles as $role) {
             Role::updateOrCreate(
-                ['name' => $role['name']], 
+                ['name' => $role['name']],
                 [
                     'type' => $role['type'],
                     'category' => $role['category']

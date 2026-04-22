@@ -26,20 +26,18 @@ class AuthController extends Controller
 
             /** @var User $authUser */
             $authUser = Auth::user();
+            $authUser->load(['member', 'roles.permissions', 'permissions']);
+            
+            // Set for frontend access if needed
+            $authUser->append('all_permissions');
             $requiresMfa = $authUser->hasCriticalAccess();
             $enrollmentRequired = $requiresMfa && !$authUser->mfa_enabled;
             $mfaRequired = $requiresMfa && $authUser->mfa_enabled;
-
-            if ($request->hasSession()) {
-                $request->session()->put('mfa_passed', !$mfaRequired);
-            }
 
             return response()->json([
                 'message' => 'Login successful',
                 'user' => $authUser,
                 'must_change_password' => (bool) $authUser->must_change_password,
-                'mfa_required' => $mfaRequired,
-                'mfa_enrollment_required' => $enrollmentRequired,
             ]);
         }
 
@@ -76,10 +74,7 @@ class AuthController extends Controller
         }
 
         $userData['must_change_password'] = (bool) $user->must_change_password;
-        $userData['mfa_enabled'] = (bool) $user->mfa_enabled;
-        $mfaPassed = $request->hasSession() ? (bool) $request->session()->get('mfa_passed', false) : false;
-        $userData['mfa_required'] = $user->hasCriticalAccess() && $user->mfa_enabled && !$mfaPassed;
-        $userData['mfa_enrollment_required'] = $user->hasCriticalAccess() && !$user->mfa_enabled;
+
 
         return response()->json($userData);
     }
@@ -91,12 +86,7 @@ class AuthController extends Controller
             'password' => [
                 'required',
                 'confirmed',
-                \Illuminate\Validation\Rules\Password::min(8)
-                    ->mixedCase()
-                    ->letters()
-                    ->numbers()
-                    ->symbols()
-                    ->uncompromised(),
+                \Illuminate\Validation\Rules\Password::min(8),
             ],
         ]);
 
@@ -136,22 +126,23 @@ class AuthController extends Controller
             'password' => [
                 'required',
                 'confirmed',
-                \Illuminate\Validation\Rules\Password::min(8)
-                    ->mixedCase()
-                    ->letters()
-                    ->numbers()
-                    ->symbols()
-                    ->uncompromised(),
+                \Illuminate\Validation\Rules\Password::min(8),
             ],
         ]);
 
+        $userToReturn = null;
         $status = Password::reset(
             $validated,
-            function (User $user, string $password): void {
+            function (User $user, string $password) use (&$userToReturn): void {
                 $user->forceFill([
                     'password' => Hash::make($password),
                     'must_change_password' => false,
                 ])->save();
+                
+                Auth::login($user);
+                $user->load(['member', 'roles.permissions', 'permissions']);
+                $user->append('all_permissions');
+                $userToReturn = $user;
             }
         );
 
@@ -159,6 +150,9 @@ class AuthController extends Controller
             return response()->json(['message' => __($status)], 422);
         }
 
-        return response()->json(['message' => 'Senha redefinida com sucesso.']);
+        return response()->json([
+            'message' => 'Senha redefinida com sucesso.',
+            'user' => $userToReturn,
+        ]);
     }
 }

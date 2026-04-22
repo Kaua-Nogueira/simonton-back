@@ -27,17 +27,22 @@ Route::post('/password/reset', [AuthController::class, 'resetPassword'])
 
 Route::get('/public-calendar', [EcclesiasticalCalendarController::class, 'publicIndex'])
     ->name('calendar.public');
+Route::get('/church/public-info', [\App\Http\Controllers\Api\ChurchConfigController::class, 'publicInfo'])
+    ->name('church.public-info');
 // Protected Routes
-Route::middleware(['auth:sanctum', 'mfa', 'acl'])->group(function () {
+Route::middleware(['auth:sanctum', 'acl'])->group(function () {
     Route::post('/logout', [AuthController::class, 'logout'])->name('auth.logout');
     Route::get('/user', [AuthController::class, 'user'])->name('auth.user');
     Route::put('/user/password', [AuthController::class, 'updatePassword'])->name('auth.password.update');
+    /*
     Route::get('/mfa/status', [\App\Http\Controllers\Api\MfaController::class, 'status'])->name('mfa.status');
     Route::post('/mfa/setup', [\App\Http\Controllers\Api\MfaController::class, 'setup'])->middleware('throttle:10,1')->name('mfa.setup');
     Route::post('/mfa/enable', [\App\Http\Controllers\Api\MfaController::class, 'enable'])->middleware('throttle:10,1')->name('mfa.enable');
     Route::post('/mfa/verify', [\App\Http\Controllers\Api\MfaController::class, 'verify'])->middleware('throttle:10,1')->name('mfa.verify');
     Route::post('/mfa/backup/regenerate', [\App\Http\Controllers\Api\MfaController::class, 'regenerateBackupCodes'])->middleware('throttle:5,1')->name('mfa.backup.regenerate');
     Route::post('/mfa/disable', [\App\Http\Controllers\Api\MfaController::class, 'disable'])->middleware('throttle:5,1')->name('mfa.disable');
+    */
+
 
     // Roles
     Route::get('/roles', [RoleController::class, 'index']);
@@ -285,6 +290,8 @@ Route::middleware(['auth:sanctum', 'mfa', 'acl'])->group(function () {
         Route::delete('entries/{entry}/splits/{split}', [\App\Http\Controllers\Api\TreasuryController::class, 'removeSplit'])->name('entries.splits.remove');
         Route::post('entries/{entry}/submit', [\App\Http\Controllers\Api\TreasuryController::class, 'submit'])->name('entries.submit');
         Route::post('entries/{entry}/confirm', [\App\Http\Controllers\Api\TreasuryController::class, 'confirm'])->name('entries.confirm');
+        Route::post('entries/{entry}/reject', [\App\Http\Controllers\Api\TreasuryController::class, 'reject'])->name('entries.reject');
+        Route::get('entries/{entry}/pdf', [\App\Http\Controllers\Api\TreasuryController::class, 'pdf'])->name('entries.pdf');
     });
     // Notifications
     Route::group(['as' => 'notifications.'], function () {

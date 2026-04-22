@@ -18,10 +18,26 @@ class ChurchConfigController extends Controller
         // Padrões se não houver no banco (garante que o front não quebre)
         $defaults = [
             'org_name' => 'Igreja Presbiteriana Simonton',
+            'org_initials' => 'IPB Simonton',
             'org_cnpj' => '00.000.000/0001-00',
             'org_address' => 'Rua Principal, 100 - Centro',
             'org_phone' => '(00) 0000-0000',
             'org_email' => 'contato@ipb.org.br',
+        ];
+
+        return response()->json(array_merge($defaults, $configs->toArray()));
+    }
+
+    /**
+     * Retorna apenas informações públicas da igreja.
+     */
+    public function publicInfo()
+    {
+        $configs = ChurchConfig::whereIn('key', ['org_name', 'org_initials', 'org_address', 'org_phone'])->pluck('value', 'key');
+        
+        $defaults = [
+            'org_name' => 'Igreja Presbiteriana Simonton',
+            'org_initials' => 'IPB Simonton',
         ];
 
         return response()->json(array_merge($defaults, $configs->toArray()));

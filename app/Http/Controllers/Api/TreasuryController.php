@@ -3,10 +3,25 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 
 class TreasuryController extends Controller
 {
+    public function pdf(Request $request, $id)
+    {
+        $entry = \App\Models\TreasuryEntry::with(['cash', 'splits.member', 'splits.society', 'user', 'confirmer'])->findOrFail($id);
+        
+        $churchName = \App\Http\Controllers\Api\ChurchConfigController::get('org_name', 'Igreja Presbiteriana Simonton');
+
+        $pdf = Pdf::loadView('reports.treasury-entry', [
+            'entry' => $entry,
+            'churchName' => $churchName,
+        ]);
+
+        return $pdf->download("conferencia-diaconia-{$entry->id}.pdf");
+    }
+
     public function index(Request $request)
     {
         // $this->authorize('viewAny', TreasuryEntry::class); // TODO: Policy
@@ -14,8 +29,11 @@ class TreasuryController extends Controller
         $query = \App\Models\TreasuryEntry::with(['user', 'confirmer'])
             ->orderBy('date', 'desc');
 
+        // By default, do not show 'draft' entries in the history/index
         if ($request->has('status')) {
             $query->where('status', $request->status);
+        } else {
+            $query->where('status', '!=', 'draft');
         }
 
         return response()->json($query->paginate(20));
@@ -147,6 +165,24 @@ class TreasuryController extends Controller
         }
 
         return response()->json($entry);
+    }
+
+    public function reject(Request $request, $id)
+    {
+        $entry = \App\Models\TreasuryEntry::findOrFail($id);
+        // $this->authorize('confirm', $entry);
+
+        if ($entry->status !== 'pending') {
+            return response()->json(['message' => 'Only pending entries can be rejected'], 422);
+        }
+
+        $entry->update([
+            'status' => 'draft',
+            'total_amount' => 0, // Reset total until resubmitted
+            'updated_at' => now()
+        ]);
+
+        return response()->json(['message' => 'Entry rejected and returned to draft', 'entry' => $entry]);
     }
 
     public function confirm(Request $request, $id)

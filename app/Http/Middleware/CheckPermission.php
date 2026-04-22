@@ -92,8 +92,8 @@ class CheckPermission
             ]);
 
             return response()->json([
-                'message' => "Unauthorized. Missing permission: {$routeName}",
-                'permission' => $routeName
+                'message' => 'Unauthorized. You do not have the necessary permissions to access this resource.',
+                'code' => 'ACCESS_DENIED'
             ], 403);
         }
 

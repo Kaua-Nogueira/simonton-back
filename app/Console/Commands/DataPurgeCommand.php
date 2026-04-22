@@ -51,9 +51,15 @@ class DataPurgeCommand extends Command
             ->where('created_at', '<', $auditDeleteCutoff)
             ->delete();
 
+        // Cleanup abandoned Treasury Drafts (older than 24h)
+        $deletedDrafts = \App\Models\TreasuryEntry::where('status', 'draft')
+            ->where('updated_at', '<', now()->subDay())
+            ->delete();
+
         $this->info("Request logs removidos: {$deletedRequestLogs}");
         $this->info("Auditorias anonimizadas: {$anonymized}");
         $this->info("Auditorias antigas removidas: {$deletedOldAudits}");
+        $this->info("Rascunhos de diaconia (Bordereaus) abandonados removidos: {$deletedDrafts}");
 
         return self::SUCCESS;
     }
