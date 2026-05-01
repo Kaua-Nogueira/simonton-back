@@ -12,6 +12,7 @@ use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\EbdController;
 use App\Http\Controllers\Api\EcclesiasticalCalendarController;
 use App\Http\Controllers\Api\MemberAccessController;
+use App\Http\Controllers\Api\ProductCampaignController;
 use Illuminate\Support\Facades\Route;
 
 // Public Routes
@@ -298,6 +299,19 @@ Route::middleware(['auth:sanctum', 'acl'])->group(function () {
         Route::get('/notifications', [\App\Http\Controllers\Api\NotificationController::class, 'index'])->name('index');
         Route::patch('/notifications/{id}/read', [\App\Http\Controllers\Api\NotificationController::class, 'markAsRead'])->name('read');
         Route::patch('/notifications/read-all', [\App\Http\Controllers\Api\NotificationController::class, 'markAllAsRead'])->name('read-all');
+    });
+
+    // Product Campaigns (Pedidos de Eventos)
+    Route::as('product-campaigns.')->group(function () {
+        Route::get('/product-campaigns', [ProductCampaignController::class, 'index'])->name('index');
+        Route::post('/product-campaigns', [ProductCampaignController::class, 'store'])->name('store');
+        Route::get('/product-campaigns/{campaign}', [ProductCampaignController::class, 'show'])->name('show');
+        Route::put('/product-campaigns/{campaign}', [ProductCampaignController::class, 'update'])->name('update');
+        Route::delete('/product-campaigns/{campaign}', [ProductCampaignController::class, 'destroy'])->name('destroy');
+        
+        Route::get('/product-campaigns/{campaign}/orders', [ProductCampaignController::class, 'orders'])->name('orders.index');
+        Route::post('/product-campaigns/{campaign}/orders', [ProductCampaignController::class, 'storeOrder'])->name('orders.store');
+        Route::patch('/product-campaigns/{campaign}/orders/{order}', [ProductCampaignController::class, 'updateOrder'])->name('orders.update');
     });
 
 });

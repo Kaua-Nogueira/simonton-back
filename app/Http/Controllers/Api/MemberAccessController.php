@@ -17,7 +17,7 @@ class MemberAccessController extends Controller
     /**
      * Generate or recreate member portal access with one-time activation link.
      */
-    public function generateAccess(Member $member)
+    public function generateAccess(\Illuminate\Http\Request $request, Member $member)
     {
         if (!$member->email) {
             return response()->json(['message' => 'O membro precisa de um e-mail cadastrado para ter acesso digital.'], 422);
@@ -28,10 +28,21 @@ class MemberAccessController extends Controller
         $user->name = $member->name;
         $user->role = 'Membro (Sistema)';
 
-        // Invalidate previous credentials and force secure activation/reset flow.
-        $user->password = Hash::make(Str::random(32));
-        $user->must_change_password = true;
-        $user->save();
+        if ($request->filled('password')) {
+            $request->validate([
+                'password' => 'required|string|min:6|confirmed',
+            ]);
+            $user->password = Hash::make($request->password);
+            $user->must_change_password = false;
+            $user->save();
+            $customMessage = 'Acesso configurado com sucesso com a senha fornecida.';
+        } else {
+            // Invalidate previous credentials and force secure activation/reset flow.
+            $user->password = Hash::make(Str::random(32));
+            $user->must_change_password = true;
+            $user->save();
+            $customMessage = 'Link de acesso gerado. Envie o link de ativação ao membro.';
+        }
 
         $memberRole = Role::where('name', 'Membro (Sistema)')->first();
         if ($memberRole) {
@@ -39,16 +50,23 @@ class MemberAccessController extends Controller
         }
 
         $token = Password::broker()->createToken($user);
-        $frontendUrl = rtrim(config('app.frontend_url', config('app.url')), '/');
+        
+        $frontendUrl = config('app.frontend_url');
+        
+        // Se a URL do frontend for localhost mas o app_url for um IP, tenta ajustar
+        if (str_contains($frontendUrl, 'localhost') && !str_contains(config('app.url'), 'localhost')) {
+            $frontendUrl = str_replace('localhost', parse_url(config('app.url'), PHP_URL_HOST), $frontendUrl);
+        }
+
         $activationUrl = sprintf(
             '%s/ativar-acesso?token=%s&email=%s',
-            $frontendUrl,
+            rtrim($frontendUrl, '/'),
             urlencode($token),
             urlencode($user->email)
         );
 
         return response()->json([
-            'message' => 'Acesso gerado com sucesso. Envie o link de ativacao ao membro.',
+            'message' => $customMessage,
             'activation' => [
                 'email' => $user->email,
                 'activation_url' => $activationUrl,
@@ -59,13 +77,18 @@ class MemberAccessController extends Controller
 
     public function me(Request $request)
     {
-        $member = $request->user()->member;
+        $user = $request->user();
+        $member = $user->member;
 
-        if (!$member) {
-            return response()->json(['message' => 'Membro nao vinculado.'], 404);
+        // Fallback: if relationship is null but id exists
+        if (!$member && $user->member_id) {
+            $member = Member::find($user->member_id);
         }
 
-        return new \App\Http\Resources\MemberResource($member);
+        return response()->json([
+            'user' => $user,
+            'member' => $member ? new \App\Http\Resources\MemberResource($member) : null
+        ]);
     }
 
     public function contributions(Request $request)

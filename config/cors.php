@@ -12,6 +12,7 @@ return [
         'http://localhost:3001',
         'http://127.0.0.1:3000',
         'http://127.0.0.1:3001',
+        'http://192.168.0.192:3000',
     ]))),
 
     // Keep wildcard local-network patterns only outside production.

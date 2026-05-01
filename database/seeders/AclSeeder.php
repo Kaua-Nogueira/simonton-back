@@ -31,16 +31,24 @@ class AclSeeder extends Seeder
             'description' => 'Gestão de membros e atas'
         ]);
 
-        // 3. Assign Permissions
-        $treasurerPerms = Permission::where('group', 'LIKE', '%Financeiro%')
-            ->orWhere('group', 'LIKE', '%Tesouraria%')
-            ->pluck('id');
+        $treasurerPerms = Permission::where(function($q) {
+            $q->where('group', 'LIKE', '%Financeiro%')
+              ->orWhere('group', 'LIKE', '%Tesouraria%')
+              ->orWhere('group', 'LIKE', '%Categories%')
+              ->orWhere('group', 'LIKE', '%Obligations%')
+              ->orWhere('name', 'LIKE', 'finance.%');
+        })->pluck('id');
         $treasurer->permissions()->sync($treasurerPerms);
 
-        $secretaryPerms = Permission::where('group', 'LIKE', '%Secretaria%')
-            ->orWhere('group', 'LIKE', '%Educação%')
-            ->orWhere('group', 'LIKE', '%Membr%')
-            ->pluck('id');
+        $secretaryPerms = Permission::where(function($q) {
+            $q->where('group', 'LIKE', '%Secretaria%')
+              ->orWhere('group', 'LIKE', '%Educação%')
+              ->orWhere('group', 'LIKE', '%Ebd%')
+              ->orWhere('group', 'LIKE', '%Membr%')
+              ->orWhere('group', 'LIKE', '%Patrimon%')
+              ->orWhere('name', 'LIKE', 'members.%')
+              ->orWhere('name', 'LIKE', 'meetings.%');
+        })->pluck('id');
         $secretary->permissions()->sync($secretaryPerms);
 
         // 4. Create Menus
@@ -218,9 +226,9 @@ class AclSeeder extends Seeder
             'Contas a Pagar' => 'finance.contas-pagar.index',
             'Conciliação Bancária' => 'reconciliation.pending',
             'Registro de Caixa' => 'cash-register.index',
-            'Plano de Contas' => 'transactions.index',
+            'Plano de Contas' => 'categories.index',
             'Orçamentos' => 'finance.budgets.index',
-            'Obrigações' => 'transactions.index',
+            'Obrigações' => 'societies.obligations.index',
             'Nova Conferência' => 'treasury.entries.store',
             'Histórico' => 'treasury.entries.index',
             'Tesouraria' => 'treasury.entries.confirm',

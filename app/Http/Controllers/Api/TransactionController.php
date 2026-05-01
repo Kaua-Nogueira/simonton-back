@@ -124,7 +124,7 @@ class TransactionController extends Controller
                     
                     if (!$isMemberExpense) {
                         $updateData['status'] = 'confirmed';
-                        $updateData['reconciled_by'] = auth()->user()?->id ?? 1; // System or Current User
+                        $updateData['reconciled_by'] = auth()->id() ?? 1; // System or Current User
                         $updateData['reconciled_at'] = now();
                     }
                 }
@@ -169,7 +169,7 @@ class TransactionController extends Controller
                 'category_id' => $request->categoryId,
                 'cost_center_id' => $request->costCenterId,
                 'status' => 'confirmed',
-                'reconciled_by' => $request->user()->id,
+                'reconciled_by' => $request->user()?->id,
                 'reconciled_at' => now(),
             ]);
 
@@ -218,7 +218,7 @@ class TransactionController extends Controller
             // Update parent transaction status
             $transaction->update([
                 'status' => 'split',
-                'reconciled_by' => $request->user()->id,
+                'reconciled_by' => $request->user()?->id,
                 'reconciled_at' => now(),
             ]);
 
