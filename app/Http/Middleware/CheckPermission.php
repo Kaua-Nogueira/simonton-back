@@ -83,6 +83,58 @@ class CheckPermission
             return $next($request);
         }
 
+        // Exempt societies.index for any authenticated user with a member_id
+        // (the controller policy will still protect it if they shouldn't view it)
+        if ($routeName === 'societies.index' && $user->member_id !== null) {
+            return $next($request);
+        }
+
+        // Dynamic access check for Society leaders
+        $route = Route::current();
+        if ($route) {
+            $society = $route->parameter('society');
+            if ($society) {
+                if (is_string($society) || is_numeric($society)) {
+                    $society = \App\Models\Society::find($society);
+                }
+                
+                if ($society instanceof \App\Models\Society && $user->member_id) {
+                    $isLeader = \App\Models\SocietyMandate::where('society_id', $society->id)
+                        ->where('year', date('Y'))
+                        ->where('status', 'active')
+                        ->whereHas('roles', function($q) use ($user) {
+                            $q->where('member_id', $user->member_id)
+                              ->where('role_type', 'board');
+                        })->exists();
+                    
+                    if ($isLeader) {
+                        // Allow leader to access society routes except for deletion of the society itself
+                        if (!str_ends_with($routeName, '.destroy') && $routeName !== 'societies.destroy') {
+                            return $next($request);
+                        }
+                    }
+                }
+            }
+        }
+
+        // Dynamic access check for Society leaders on balancete report
+        if ($routeName === 'societies.balancete') {
+            $societyId = $request->input('society_id');
+            if ($societyId && $user->member_id) {
+                $isLeader = \App\Models\SocietyMandate::where('society_id', $societyId)
+                    ->where('year', date('Y'))
+                    ->where('status', 'active')
+                    ->whereHas('roles', function($q) use ($user) {
+                        $q->where('member_id', $user->member_id)
+                          ->where('role_type', 'board');
+                    })->exists();
+                
+                if ($isLeader) {
+                    return $next($request);
+                }
+            }
+        }
+
         if (!$user->hasPermission($routeName)) {
             \Illuminate\Support\Facades\Log::warning('ACL Access Denied', [
                 'user_id' => $user->id,

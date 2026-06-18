@@ -23,6 +23,7 @@ class DatabaseSeeder extends Seeder
             
             // ACL, Menus and Permissions
             AclSeeder::class,
+            ProductCampaignPermissionsSeeder::class,
             
             // Master Admin
             SuperAdminSeeder::class,

@@ -31,18 +31,16 @@ Route::get('/public-calendar', [EcclesiasticalCalendarController::class, 'public
 Route::get('/church/public-info', [\App\Http\Controllers\Api\ChurchConfigController::class, 'publicInfo'])
     ->name('church.public-info');
 // Protected Routes
-Route::middleware(['auth:sanctum', 'acl'])->group(function () {
+Route::middleware(['auth:sanctum', 'acl', 'mfa'])->group(function () {
     Route::post('/logout', [AuthController::class, 'logout'])->name('auth.logout');
     Route::get('/user', [AuthController::class, 'user'])->name('auth.user');
     Route::put('/user/password', [AuthController::class, 'updatePassword'])->name('auth.password.update');
-    /*
     Route::get('/mfa/status', [\App\Http\Controllers\Api\MfaController::class, 'status'])->name('mfa.status');
     Route::post('/mfa/setup', [\App\Http\Controllers\Api\MfaController::class, 'setup'])->middleware('throttle:10,1')->name('mfa.setup');
     Route::post('/mfa/enable', [\App\Http\Controllers\Api\MfaController::class, 'enable'])->middleware('throttle:10,1')->name('mfa.enable');
     Route::post('/mfa/verify', [\App\Http\Controllers\Api\MfaController::class, 'verify'])->middleware('throttle:10,1')->name('mfa.verify');
     Route::post('/mfa/backup/regenerate', [\App\Http\Controllers\Api\MfaController::class, 'regenerateBackupCodes'])->middleware('throttle:5,1')->name('mfa.backup.regenerate');
     Route::post('/mfa/disable', [\App\Http\Controllers\Api\MfaController::class, 'disable'])->middleware('throttle:5,1')->name('mfa.disable');
-    */
 
 
     // Roles

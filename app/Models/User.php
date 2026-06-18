@@ -165,8 +165,10 @@ class User extends Authenticatable
 
     public function hasCriticalAccess(): bool
     {
-        // Desativado temporariamente para facilitar o setup inicial no servidor
-        return false;
+        if (app()->environment('local')) {
+            return false;
+        }
+        return $this->isSuperAdmin();
     }
 
     public function givePermissionTo($permission)
