@@ -52,7 +52,9 @@ class AclSeeder extends Seeder
         $secretary->permissions()->sync($secretaryPerms);
 
         // 4. Create Menus
+        \Illuminate\Support\Facades\Schema::disableForeignKeyConstraints();
         Menu::truncate();
+        \Illuminate\Support\Facades\Schema::enableForeignKeyConstraints();
 
         // Dashboard
         Menu::create([
