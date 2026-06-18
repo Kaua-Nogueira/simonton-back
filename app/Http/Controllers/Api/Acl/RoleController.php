@@ -48,7 +48,7 @@ class RoleController extends Controller
         $this->authorize('update', $role);
         
         $validated = $request->validate([
-            'name' => 'required|string|unique:roles,name,' . $id,
+            'name' => ['required', 'string', \Illuminate\Validation\Rule::unique('roles')->ignore($role->id)],
             'type' => 'required|string',
             'description' => 'nullable|string',
             'permissions' => 'array'
