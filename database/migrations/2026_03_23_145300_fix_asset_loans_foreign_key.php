@@ -12,13 +12,9 @@ return new class extends Migration
      */
     public function up(): void
     {
-        // For SQLite, we must recreate the table to change foreign keys properly via Schema
-        // But for common usage in Laravel migrations:
-        
-        // 1. Rename existing table
-        if (Schema::hasTable('asset_loans')) {
-            Schema::rename('asset_loans', 'asset_loans_old');
-        }
+        // For SQLite and MySQL compatibility, we simply drop the old table and recreate it
+        // since the patrimony module was completely refactored and starting fresh.
+        Schema::dropIfExists('asset_loans');
 
         // 2. Create new table with correct FK
         Schema::create('asset_loans', function (Blueprint $table) {
@@ -33,18 +29,6 @@ return new class extends Migration
             $table->text('notes')->nullable();
             $table->timestamps();
         });
-
-        // 3. Move data if any exists
-        if (Schema::hasTable('asset_loans_old')) {
-            $count = DB::table('asset_loans_old')->count();
-            if ($count > 0) {
-                 // We only move if the asset_id exists in the new patrimony_assets table too, or just truncate?
-                 // Since the user is likely starting fresh after our discovery, we'll try to move but catch FK errors or just skip.
-                 // Actually, if it fails FK, it will fail the migration. 
-                 // Given the situation, it's safer to just skip if total is 0 or it's a known 'fix' migration.
-            }
-            Schema::dropIfExists('asset_loans_old');
-        }
     }
 
     /**

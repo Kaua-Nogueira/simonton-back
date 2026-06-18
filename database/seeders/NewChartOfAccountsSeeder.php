@@ -10,13 +10,13 @@ class NewChartOfAccountsSeeder extends Seeder
 {
     public function run(): void
     {
-        // Limpar dados existentes (SQLite pattern)
-        DB::statement('PRAGMA foreign_keys = OFF;');
+        // Limpar dados existentes (Compatível com MySQL e SQLite)
+        \Illuminate\Support\Facades\Schema::disableForeignKeyConstraints();
         DB::table('transaction_splits')->delete();
         DB::table('transactions')->delete();
         DB::table('treasury_entries')->delete();
         DB::table('categories')->delete();
-        DB::statement('PRAGMA foreign_keys = ON;');
+        \Illuminate\Support\Facades\Schema::enableForeignKeyConstraints();
 
         // 1. Grupo Principal - ENTRADAS
         $entradas = Category::create([
