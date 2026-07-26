@@ -25,4 +25,21 @@ class SocietyMandate extends BaseModel
     {
         return $this->hasMany(MandateRole::class, 'mandate_id');
     }
+
+    protected static function booted()
+    {
+        static::saved(function ($mandate) {
+            $memberIds = $mandate->roles()->pluck('member_id')->unique();
+            foreach ($memberIds as $memberId) {
+                User::syncSocietyLeaderRoleForMember($memberId);
+            }
+        });
+
+        static::deleted(function ($mandate) {
+            $memberIds = $mandate->roles()->pluck('member_id')->unique();
+            foreach ($memberIds as $memberId) {
+                User::syncSocietyLeaderRoleForMember($memberId);
+            }
+        });
+    }
 }

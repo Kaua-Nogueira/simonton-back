@@ -39,12 +39,15 @@ class MenuController extends Controller
 
     protected function filterMenu($menu, $user)
     {
+        // Keep track if it originally has children (before filtering)
+        $hadChildren = $menu->children->count() > 0;
+
         // Check children first
-            $filteredChildren = $menu->children->map(function($child) use ($user) {
-                return $this->filterMenu($child, $user);
-            })->filter()->values();
-            
-            $menu->setRelation('children', $filteredChildren);
+        $filteredChildren = $menu->children->map(function($child) use ($user) {
+            return $this->filterMenu($child, $user);
+        })->filter()->values();
+        
+        $menu->setRelation('children', $filteredChildren);
 
         // If specific permissions are set, check them
         if ($menu->permissions->count() > 0) {
@@ -69,14 +72,13 @@ class MenuController extends Controller
             }
         }
 
-        // If no permissions set but has children, only show if at least one child is visible
-        // (This is now partially redundant with the logic above but kept for clarity)
-        if ($menu->children->count() > 0) {
-            // Children were already filtered at the start of filterMenu
-            if ($menu->children->count() === 0) return null;
+        // If the menu is a parent container (has url '#' or null) or originally had children,
+        // and now has no visible children, do not show it.
+        if ($menu->url === '#' || empty($menu->url) || $hadChildren) {
+            if ($menu->children->count() === 0) {
+                return null;
+            }
         }
-
-        // If no permissions and no children, it's a "public/default" menu item (e.g. Dashboard)
         
         return $menu;
     }

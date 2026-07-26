@@ -230,6 +230,9 @@ Route::middleware(['auth:sanctum', 'acl', 'mfa'])->group(function () {
         // Contas a Pagar
         Route::get('contas-pagar/dashboard', [\App\Http\Controllers\Api\ContaPagarController::class, 'dashboard'])->name('contas-pagar.dashboard');
         Route::post('contas-pagar/{contaPagar}/pay', [\App\Http\Controllers\Api\ContaPagarController::class, 'pay'])->name('contas-pagar.pay');
+        Route::post('contas-pagar/{contaPagar}/attachment', [\App\Http\Controllers\Api\ContaPagarController::class, 'uploadAttachment'])->name('contas-pagar.upload-attachment');
+        Route::delete('contas-pagar/{contaPagar}/attachment', [\App\Http\Controllers\Api\ContaPagarController::class, 'deleteAttachment'])->name('contas-pagar.delete-attachment');
+        Route::get('contas-pagar/{contaPagar}/attachment', [\App\Http\Controllers\Api\ContaPagarController::class, 'viewAttachment'])->name('contas-pagar.view-attachment');
         Route::apiResource('contas-pagar', \App\Http\Controllers\Api\ContaPagarController::class);
 
         // Prestação de Contas (Expense Reconciliations)

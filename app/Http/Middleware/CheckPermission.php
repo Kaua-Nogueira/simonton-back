@@ -54,6 +54,7 @@ class CheckPermission
             'portal.contributions',
             'societies.financial.movements.attachment',
             'finance.reconciliations.items.attachment',
+            'finance.contas-pagar.view-attachment',
             'mfa.status',
             'mfa.setup',
             'mfa.enable',

@@ -178,4 +178,61 @@ class User extends Authenticatable
             $this->permissions()->syncWithoutDetaching([$p->id]);
         }
     }
+
+    /**
+     * Sincroniza a role 'Líder de Sociedade' com base nos mandatos ativos em que o membro é líder.
+     */
+    public function syncSocietyLeaderRole(): void
+    {
+        if (!$this->member_id) {
+            return;
+        }
+
+        // Verifica se o membro é líder de diretoria (board) em algum mandato ativo no ano atual
+        $isLeader = \App\Models\SocietyMandate::where('year', date('Y'))
+            ->where('status', 'active')
+            ->whereHas('roles', function ($q) {
+                $q->where('member_id', $this->member_id)
+                  ->where('role_type', 'board');
+            })->exists();
+
+        $role = \App\Models\Role::where('name', 'Líder de Sociedade')->first();
+        if (!$role) {
+            $role = \App\Models\Role::create([
+                'name' => 'Líder de Sociedade',
+                'type' => 'system',
+                'description' => 'Acesso administrativo específico para líderes de sociedades internas'
+            ]);
+        }
+
+        if ($isLeader) {
+            if (!$this->roles->contains($role->id)) {
+                $this->roles()->attach($role->id);
+            }
+        } else {
+            if ($this->roles->contains($role->id)) {
+                $this->roles()->detach($role->id);
+            }
+        }
+    }
+
+    public static function syncSocietyLeaderRoleForMember(?int $memberId): void
+    {
+        if (!$memberId) {
+            return;
+        }
+        $user = self::where('member_id', $memberId)->first();
+        if ($user) {
+            $user->syncSocietyLeaderRole();
+        }
+    }
+
+    protected static function booted()
+    {
+        static::saved(function ($user) {
+            if ($user->isDirty('member_id')) {
+                $user->syncSocietyLeaderRole();
+            }
+        });
+    }
 }

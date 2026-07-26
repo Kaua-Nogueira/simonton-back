@@ -20,4 +20,15 @@ class MandateRole extends BaseModel
     {
         return $this->belongsTo(Member::class);
     }
+
+    protected static function booted()
+    {
+        static::saved(function ($mandateRole) {
+            User::syncSocietyLeaderRoleForMember($mandateRole->member_id);
+        });
+
+        static::deleted(function ($mandateRole) {
+            User::syncSocietyLeaderRoleForMember($mandateRole->member_id);
+        });
+    }
 }

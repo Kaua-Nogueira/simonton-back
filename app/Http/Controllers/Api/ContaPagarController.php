@@ -9,6 +9,7 @@ use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Storage;
 
 class ContaPagarController extends Controller
 {
@@ -20,7 +21,7 @@ class ContaPagarController extends Controller
         $this->service->checkAndMarkVencidas();
         $this->service->generateNextMonthlyInstances();
 
-        $query = ContaPagar::with(['category', 'costCenter', 'transaction'])
+        $query = ContaPagar::with(['category', 'costCenter', 'transaction.reconciliation.items'])
             ->orderBy('data_vencimento', 'asc');
 
         if ($request->status) {
@@ -78,7 +79,7 @@ class ContaPagarController extends Controller
 
     public function show(ContaPagar $contaPagar): JsonResponse
     {
-        return response()->json($contaPagar->load(['category', 'costCenter', 'transaction', 'budgetItem']));
+        return response()->json($contaPagar->load(['category', 'costCenter', 'transaction.reconciliation.items', 'budgetItem']));
     }
 
     public function update(Request $request, ContaPagar $contaPagar): JsonResponse
@@ -195,6 +196,49 @@ class ContaPagarController extends Controller
             'total_vencido'  => (float) $totalVencido,
             'count_vencidas' => $countVencidas,
             'a_vencer'       => $aVencer,
+        ]);
+    }
+
+    public function uploadAttachment(Request $request, ContaPagar $contaPagar): JsonResponse
+    {
+        $request->validate([
+            'attachment' => 'required|file|mimes:pdf,jpg,jpeg,png|max:5120',
+        ]);
+
+        if ($contaPagar->attachment_path) {
+            Storage::disk('local')->delete($contaPagar->attachment_path);
+        }
+
+        $path = $request->file('attachment')->store('contas-pagar/attachments', 'local');
+        $contaPagar->update(['attachment_path' => $path]);
+
+        return response()->json([
+            'message' => 'Arquivo anexado com sucesso',
+            'data' => $contaPagar->fresh()->load(['category', 'costCenter', 'transaction.reconciliation.items'])
+        ]);
+    }
+
+    public function deleteAttachment(Request $request, ContaPagar $contaPagar): JsonResponse
+    {
+        if ($contaPagar->attachment_path) {
+            Storage::disk('local')->delete($contaPagar->attachment_path);
+            $contaPagar->update(['attachment_path' => null]);
+        }
+
+        return response()->json([
+            'message' => 'Anexo removido com sucesso',
+            'data' => $contaPagar->fresh()->load(['category', 'costCenter', 'transaction.reconciliation.items'])
+        ]);
+    }
+
+    public function viewAttachment(Request $request, ContaPagar $contaPagar)
+    {
+        if (!$contaPagar->attachment_path || !Storage::disk('local')->exists($contaPagar->attachment_path)) {
+            return response()->json(['message' => 'Arquivo não encontrado.'], 404);
+        }
+
+        return response()->file(Storage::disk('local')->path($contaPagar->attachment_path), [
+            'Content-Disposition' => 'inline; filename="'.basename($contaPagar->attachment_path).'"',
         ]);
     }
 }

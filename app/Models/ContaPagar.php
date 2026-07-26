@@ -25,6 +25,7 @@ class ContaPagar extends BaseModel
         'data_fim',
         'serie_id',
         'gerado_automaticamente',
+        'attachment_path',
         'user_id',
     ];
 

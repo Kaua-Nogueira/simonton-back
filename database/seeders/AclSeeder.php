@@ -31,6 +31,11 @@ class AclSeeder extends Seeder
             'description' => 'Gestão de membros e atas'
         ]);
 
+        Role::firstOrCreate(['name' => 'Líder de Sociedade'], [
+            'type' => 'system',
+            'description' => 'Acesso administrativo específico para líderes de sociedades internas'
+        ]);
+
         $treasurerPerms = Permission::where(function($q) {
             $q->where('group', 'LIKE', '%Financeiro%')
               ->orWhere('group', 'LIKE', '%Tesouraria%')
@@ -245,7 +250,11 @@ class AclSeeder extends Seeder
             'Relatório Geral' => 'societies.index',
             'Controle de Acesso' => 'acl.roles.index',
             'Logs de Auditoria' => 'acl.logs.index',
-            'Configurações' => 'auth.user',
+            'Configurações' => 'church-configs.index',
+            'Cadastros' => 'members.index',
+            'Visão Geral' => 'reports.view',
+            'Dízimos e Ofertas' => 'reports.view',
+            'Relatório Mensal' => 'reports.view',
         ];
 
         foreach ($mappings as $title => $permName) {
